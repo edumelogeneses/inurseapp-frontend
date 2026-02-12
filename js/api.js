@@ -5,7 +5,10 @@
 // ✅ TypeScript: JSDoc types
 // ========================================
 
-const API_BASE_URL = 'https://lively-embrace-production-a4a2.up.railway.app';
+// Production API URL
+const API_BASE_URL = 'https://api.inurseapp.com';
+// Development: 'http://localhost:8000'
+// Railway: 'https://lively-embrace-production-a4a2.up.railway.app'
 
 /**
  * @typedef {Object} User
