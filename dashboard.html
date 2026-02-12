@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - iNurseApp</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iNurseApp">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5F3XF8G5KN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5F3XF8G5KN');
+    </script>
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .dashboard {
+            min-height: 100vh;
+            background: var(--gray-50);
+        }
+        
+        .dashboard-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .dashboard-main {
+            padding: 2rem 0;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid;
+        }
+        
+        .stat-card.primary { border-color: var(--primary); }
+        .stat-card.success { border-color: var(--success); }
+        .stat-card.warning { border-color: var(--warning); }
+        
+        .stat-card-title {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            margin: 2rem 0;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-700);
+        }
+        
+        .empty-state p {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="dashboard">
+    <a href="#main-content" class="sr-only">Pular para conteúdo principal</a>
+    
+    <header class="dashboard-header" role="banner">
+        <div class="container">
+            <nav class="dashboard-nav" aria-label="Navegação do dashboard">
+                <div class="logo">
+                    <h1 style="font-size: 1.25rem; color: var(--primary); margin: 0;">
+                        🩺 iNurseApp
+                    </h1>
+                </div>
+                <div class="user-menu">
+                    <span id="user-name" class="text-muted"></span>
+                    <div class="user-avatar" id="user-avatar" aria-label="Menu do usuário"></div>
+                    <button 
+                        class="btn btn-secondary" 
+                        onclick="logout()"
+                        aria-label="Sair da conta"
+                    >
+                        Sair
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="dashboard-main">
+        <div class="container">
+            <!-- Welcome Section -->
+            <section aria-labelledby="welcome-title">
+                <h2 id="welcome-title" style="margin-bottom: 0.5rem;">
+                    Bem-vindo de volta!
+                </h2>
+                <p class="text-muted" style="margin-bottom: 2rem;">
+                    Aqui está um resumo da sua conta
+                </p>
+            </section>
+
+            <!-- Stats Grid -->
+            <div class="dashboard-grid" role="region" aria-label="Estatísticas da conta">
+                <div class="stat-card primary">
+                    <div class="stat-card-title">Plano Atual</div>
+                    <div class="stat-card-value" id="stat-plan">---</div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-card-title">Tokens Disponíveis</div>
+                    <div class="stat-card-value" id="stat-tokens">---</div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-card-title">Tokens Usados</div>
+                    <div class="stat-card-value" id="stat-used">---</div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-state-icon" aria-hidden="true">🎤</div>
+                <h3>Comece agora!</h3>
+                <p>Você ainda não criou nenhum prontuário. Grave sua primeira consulta para começar.</p>
+                <button class="btn btn-primary btn-large" disabled>
+                    🎙️ Gravar Consulta
+                </button>
+                <p class="text-muted" style="margin-top: 1rem; font-size: 0.875rem;">
+                    (Funcionalidade em desenvolvimento)
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/analytics.js"></script>
+    <script>
+        // Protect page
+        protectPage();
+        
+        // Load user data
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = API.getUser();
+            
+            if (user) {
+                // Set user name
+                document.getElementById('user-name').textContent = user.full_name;
+                
+                // Set avatar initial
+                const initials = user.full_name.split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+                document.getElementById('user-avatar').textContent = initials;
+                
+                // Set stats
+                document.getElementById('stat-plan').textContent = user.plan;
+                document.getElementById('stat-tokens').textContent = formatTokens(user.tokens_total - user.tokens_used);
+                document.getElementById('stat-used').textContent = formatTokens(user.tokens_used);
+            }
+            
+            // Fetch fresh data from API
+            const result = await getCurrentUser();
+            if (result.success) {
+                const freshUser = result.user;
+                
+                document.getElementById('user-name').textContent = freshUser.full_name;
+                document.getElementById('stat-plan').textContent = freshUser.plan;
+                document.getElementById('stat-tokens').textContent = formatTokens(freshUser.tokens_total - freshUser.tokens_used);
+                document.getElementById('stat-used').textContent = formatTokens(freshUser.tokens_used);
+            }
+        });
+    </script>
+</body>
+</html>

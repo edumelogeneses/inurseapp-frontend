@@ -1,0 +1,22 @@
+<!-- ============================================
+     GOOGLE ANALYTICS - ADICIONAR NO <head>
+     ⚠️ Substitua G-XXXXXXXXXX pelo seu ID real!
+     ============================================ -->
+
+<!-- Google Analytics (Global) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    send_page_view: true,
+    cookie_flags: 'SameSite=None;Secure'
+  });
+</script>
+
+<!-- ============================================
+     ANALYTICS CUSTOMIZADO - ADICIONAR ANTES DE </body>
+     ============================================ -->
+
+<script src="js/analytics.js"></script>

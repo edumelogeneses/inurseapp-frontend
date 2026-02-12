@@ -1,0 +1,42 @@
+{
+  "name": "inurseapp-frontend",
+  "version": "2.0.0",
+  "description": "iNurseApp - Transforme áudios em prontuários SOAP com IA",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 8000 -c-1",
+    "build": "echo 'Static site - no build needed'",
+    "preview": "npx http-server dist -p 8080",
+    "lint": "eslint js/**/*.js",
+    "format": "prettier --write \"**/*.{js,css,html,json,md}\"",
+    "test": "vitest",
+    "lighthouse": "lighthouse http://localhost:8000 --view"
+  },
+  "keywords": [
+    "healthcare",
+    "medical",
+    "nursing",
+    "ai",
+    "soap",
+    "transcription"
+  ],
+  "author": "Eduardo Melo <eduardo@inurseapp.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "@testing-library/dom": "^9.3.4",
+    "eslint": "^8.56.0",
+    "lighthouse": "^11.5.0",
+    "prettier": "^3.2.4",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

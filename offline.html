@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - iNurseApp</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #F9FAFB 0%, #DBEAFE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #6B7280;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #2563EB;
+            color: white;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #1D4ED8;
+            transform: translateY(-2px);
+        }
+        
+        .status-indicator {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #FEF3C7;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: #92400E;
+        }
+        
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #F59E0B;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .offline-icon,
+            .pulse-dot {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon" role="img" aria-label="Sem conexão">📡</div>
+        <h1>Você está offline</h1>
+        <p>
+            Parece que você perdeu a conexão com a internet. 
+            Verifique sua rede e tente novamente.
+        </p>
+        
+        <button class="btn" onclick="window.location.reload()" aria-label="Tentar novamente">
+            🔄 Tentar Novamente
+        </button>
+        
+        <div class="status-indicator" role="status" aria-live="polite">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span id="status-text">Aguardando conexão...</span>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const statusText = document.getElementById('status-text');
+            
+            if (navigator.onLine) {
+                statusText.textContent = 'Conexão restaurada! Recarregando...';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                statusText.textContent = 'Aguardando conexão...';
+            }
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Check on load
+        updateConnectionStatus();
+    </script>
+</body>
+</html>

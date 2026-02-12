@@ -1,0 +1,67 @@
+# Netlify Configuration
+# https://docs.netlify.com/configure-builds/file-based-configuration/
+
+[build]
+  publish = "."
+  command = "echo 'Static site ready'"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://lively-embrace-production-a4a2.up.railway.app/api/:splat"
+  status = 200
+  force = true
+
+# Redirect www to non-www (ou vice-versa)
+[[redirects]]
+  from = "http://www.inurseapp.com/*"
+  to = "https://inurseapp.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.inurseapp.com/*"
+  to = "https://inurseapp.com/:splat"
+  status = 301
+  force = true
+
+# SPA fallback (se usar client-side routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://lively-embrace-production-a4a2.up.railway.app; font-src 'self' data:;"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

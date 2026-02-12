@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- ========================================
+         META TAGS - SEO & Social Media
+         ======================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Primary Meta Tags -->
+    <title>Criar Conta Grátis - iNurseApp | IA para Prontuários SOAP</title>
+    <meta name="title" content="Criar Conta Grátis - iNurseApp | IA para Prontuários SOAP">
+    <meta name="description" content="Crie sua conta gratuita no iNurseApp e ganhe 100.000 tokens. Transforme áudios em prontuários SOAP com IA em segundos.">
+    <meta name="keywords" content="cadastro inurseapp, criar conta enfermagem, prontuário eletrônico grátis, SOAP IA">
+    <meta name="author" content="iNurseApp">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://inurseapp.com/register.html">
+    <meta property="og:title" content="Criar Conta Grátis - iNurseApp">
+    <meta property="og:description" content="Comece grátis com 100.000 tokens. Transforme áudios em prontuários SOAP.">
+    <meta property="og:image" content="https://inurseapp.com/assets/og-register.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://inurseapp.com/register.html">
+    <meta property="twitter:title" content="Criar Conta Grátis - iNurseApp">
+    <meta property="twitter:description" content="Comece grátis com 100.000 tokens. Transforme áudios em prontuários SOAP.">
+    <meta property="twitter:image" content="https://inurseapp.com/assets/twitter-register.jpg">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iNurseApp">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5F3XF8G5KN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5F3XF8G5KN');
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://inurseapp.com/register.html">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Preconnect para performance -->
+    <link rel="preconnect" href="https://lively-embrace-production-a4a2.up.railway.app">
+    
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F9FAFB 0%, #DBEAFE 100%);
+            padding: 2rem;
+        }
+        
+        .auth-container {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            role: img;
+            aria-label: "Logo do iNurseApp";
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--gray-300);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray-600);
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .password-requirements {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-top: 0.5rem;
+        }
+        
+        .password-requirements ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        /* ✅ Password strength indicator */
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .password-strength-bar.weak {
+            width: 25%;
+            background: var(--danger-500);
+        }
+        
+        .password-strength-bar.medium {
+            width: 50%;
+            background: var(--warning-500);
+        }
+        
+        .password-strength-bar.good {
+            width: 75%;
+            background: var(--success-500);
+        }
+        
+        .password-strength-bar.strong {
+            width: 100%;
+            background: var(--success-700);
+        }
+        
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="sr-only">Pular para conteúdo principal</a>
+    
+    <main id="main-content" class="auth-page">
+        <div class="auth-container">
+            <header class="auth-header">
+                <div class="auth-logo" role="img" aria-label="Logo iNurseApp">🩺</div>
+                <h1 class="auth-title">Crie sua conta</h1>
+                <p class="auth-subtitle">Comece grátis com 100.000 tokens</p>
+            </header>
+
+            <!-- Alert container -->
+            <div id="alert-container" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+            <!-- Register Form -->
+            <form id="registerForm" novalidate aria-label="Formulário de cadastro">
+                <div class="form-group">
+                    <label class="form-label" for="full_name">
+                        Nome Completo
+                        <span class="sr-only">(obrigatório)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="full_name" 
+                        name="full_name"
+                        class="form-input" 
+                        placeholder="João da Silva"
+                        required
+                        minlength="3"
+                        autocomplete="name"
+                        aria-required="true"
+                        aria-describedby="name-help"
+                    >
+                    <small id="name-help" class="form-help">Seu nome completo</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        E-mail Profissional
+                        <span class="sr-only">(obrigatório)</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        class="form-input" 
+                        placeholder="seu@email.com"
+                        required
+                        autocomplete="email"
+                        aria-required="true"
+                        aria-describedby="email-help"
+                    >
+                    <small id="email-help" class="form-help">Use seu email profissional</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        Senha
+                        <span class="sr-only">(obrigatório)</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        class="form-input" 
+                        placeholder="••••••••"
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                        aria-required="true"
+                        aria-describedby="password-requirements"
+                    >
+                    
+                    <!-- Password strength indicator -->
+                    <div class="password-strength" aria-hidden="true">
+                        <div id="password-strength-bar" class="password-strength-bar"></div>
+                    </div>
+                    <div id="password-strength-text" class="sr-only" aria-live="polite"></div>
+                    
+                    <div id="password-requirements" class="password-requirements">
+                        Mínimo 8 caracteres, incluindo:
+                        <ul>
+                            <li>Letra maiúscula</li>
+                            <li>Letra minúscula</li>
+                            <li>Número</li>
+                            <li>Caractere especial (!@#$%)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password_confirm">
+                        Confirmar Senha
+                        <span class="sr-only">(obrigatório)</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password_confirm" 
+                        name="password_confirm"
+                        class="form-input" 
+                        placeholder="••••••••"
+                        required
+                        autocomplete="new-password"
+                        aria-required="true"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.875rem;">
+                        <input 
+                            type="checkbox" 
+                            id="terms" 
+                            name="terms"
+                            required 
+                            style="margin-top: 0.25rem;"
+                            aria-required="true"
+                        >
+                        <span>
+                            Eu aceito os 
+                            <a href="/terms.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a> 
+                            e 
+                            <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>
+                        </span>
+                    </label>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="btn btn-primary btn-block" 
+                    id="registerBtn"
+                    aria-label="Criar conta gratuita"
+                >
+                    Criar Conta Grátis
+                </button>
+            </form>
+
+            <div class="divider" role="separator">
+                <span>ou</span>
+            </div>
+
+            <a 
+                href="login.html" 
+                class="btn btn-secondary btn-block"
+                aria-label="Ir para página de login"
+            >
+                Já tenho uma conta
+            </a>
+
+            <footer class="auth-footer">
+                <a href="index.html" aria-label="Voltar para página inicial">← Voltar para home</a>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/analytics.js"></script>
+    <script>
+        // ========================================
+        // Register Form Handler - SECURE VERSION
+        // ========================================
+        
+        // Redirect if already authenticated
+        redirectIfAuthenticated();
+        
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        
+        passwordInput.addEventListener('input', (e) => {
+            const strength = getPasswordStrength(e.target.value);
+            const levels = ['', 'weak', 'medium', 'good', 'strong'];
+            const texts = ['', 'Fraca', 'Média', 'Boa', 'Forte'];
+            
+            strengthBar.className = `password-strength-bar ${levels[strength]}`;
+            strengthText.textContent = `Força da senha: ${texts[strength]}`;
+        });
+        
+        // Form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('registerBtn');
+            const alertContainer = document.getElementById('alert-container');
+            
+            // Get form data
+            const full_name = document.getElementById('full_name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const password_confirm = document.getElementById('password_confirm').value;
+            
+            // Disable button
+            btn.disabled = true;
+            btn.textContent = 'Criando conta...';
+            btn.setAttribute('aria-busy', 'true');
+            
+            try {
+                // ✅ SEGURO: Usar função register() do auth.js
+                const result = await register({
+                    email,
+                    password,
+                    password_confirm,
+                    full_name
+                });
+                
+                if (result.success) {
+                    // ✅ SEGURO: Usar função showAlert()
+                    showAlert(alertContainer, 'Conta criada com sucesso! Redirecionando...', 'success');
+                    
+                    // Redirect to login
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                // ✅ SEGURO: Usar função showAlert()
+                showAlert(alertContainer, error.message, 'error');
+                
+                btn.disabled = false;
+                btn.textContent = 'Criar Conta Grátis';
+                btn.setAttribute('aria-busy', 'false');
+            }
+        });
+    </script>
+</body>
+</html>

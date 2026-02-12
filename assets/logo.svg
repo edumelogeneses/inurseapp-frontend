@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#2563EB"/>
+  
+  <!-- Stethoscope Icon -->
+  <g transform="translate(150, 120)">
+    <!-- Main body -->
+    <path d="M156 120 C156 80, 136 60, 106 60 C76 60, 56 80, 56 120 L56 180 C56 220, 76 240, 106 240 C136 240, 156 220, 156 180 Z" 
+          fill="white" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Left tube -->
+    <path d="M56 120 L56 60 C56 40, 46 30, 26 30 C6 30, -4 40, -4 60 L-4 80" 
+          fill="none" stroke="white" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Right tube -->
+    <path d="M156 120 L156 60 C156 40, 166 30, 186 30 C206 30, 216 40, 216 60 L216 80" 
+          fill="none" stroke="white" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Left earpiece -->
+    <circle cx="-4" cy="90" r="18" fill="white"/>
+    <circle cx="-4" cy="90" r="10" fill="#2563EB"/>
+    
+    <!-- Right earpiece -->
+    <circle cx="216" cy="90" r="18" fill="white"/>
+    <circle cx="216" cy="90" r="10" fill="#2563EB"/>
+    
+    <!-- Chest piece -->
+    <circle cx="106" cy="200" r="35" fill="white"/>
+    <circle cx="106" cy="200" r="25" fill="#2563EB"/>
+    <circle cx="106" cy="200" r="15" fill="white"/>
+  </g>
+  
+  <!-- Plus sign (medical cross) -->
+  <g transform="translate(330, 350)">
+    <rect x="-8" y="-30" width="16" height="60" rx="4" fill="white"/>
+    <rect x="-30" y="-8" width="60" height="16" rx="4" fill="white"/>
+  </g>
+</svg>
