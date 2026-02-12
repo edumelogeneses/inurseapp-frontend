@@ -1,0 +1,144 @@
+# ========================================
+# iNurseApp Frontend - Netlify Configuration
+# ========================================
+
+[build]
+  # Como é um site estático, não há comando de build
+  command = ""
+  # Diretório raiz para publicar
+  publish = "."
+
+# ========================================
+# Configurações de Deploy
+# ========================================
+
+[build.processing]
+  # Otimizar CSS
+  css.bundle = true
+  css.minify = true
+  
+  # Otimizar JavaScript
+  js.bundle = true
+  js.minify = true
+
+# ========================================
+# Headers de Segurança e Performance
+# ========================================
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Segurança
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(self), camera=()"
+    
+    # Performance
+    X-DNS-Prefetch-Control = "on"
+    
+    # Cache para assets estáticos (1 ano)
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers específicos para HTML (sem cache agressivo)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Headers para CSS e JS (cache longo)
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers para imagens
+[[headers]]
+  for = "/*.{jpg,jpeg,png,gif,svg,webp,ico}"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ========================================
+# Redirects e Rewrites
+# ========================================
+
+# Redirect para HTTPS
+[[redirects]]
+  from = "http://inurseapp.com/*"
+  to = "https://inurseapp.com/:splat"
+  status = 301
+  force = true
+
+# Redirect www para non-www
+[[redirects]]
+  from = "https://www.inurseapp.com/*"
+  to = "https://inurseapp.com/:splat"
+  status = 301
+  force = true
+
+# SPA fallback - todas as rotas não encontradas vão para index.html
+# (descomente se adicionar roteamento client-side no futuro)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200
+
+# 404 personalizado (criar 404.html se necessário)
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# ========================================
+# Configurações de Contexto
+# ========================================
+
+# Produção
+[context.production]
+  [context.production.environment]
+    NODE_ENV = "production"
+
+# Branch deploys (previews)
+[context.branch-deploy]
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+
+# Deploy previews de PRs
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    NODE_ENV = "development"
+
+# ========================================
+# Plugins do Netlify (opcional)
+# ========================================
+
+# Plugin de otimização de imagens
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
+
+# ========================================
+# Configurações Adicionais
+# ========================================
+
+# Habilitar pretty URLs (remove .html das URLs)
+[build.environment]
+  NETLIFY_USE_YARN = "false"
+  
+# Split testing (A/B testing) - exemplo
+# [[redirects]]
+#   from = "/"
+#   to = "/index.html"
+#   status = 200
+#   conditions = {Cookie = ["ab_test=A"]}
+
+# [[redirects]]
+#   from = "/"
+#   to = "/index-b.html"
+#   status = 200
+#   conditions = {Cookie = ["ab_test=B"]}

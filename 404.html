@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página não encontrada - iNurseApp</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5F3XF8G5KN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-5F3XF8G5KN');
+    </script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            background: linear-gradient(135deg, #F9FAFB 0%, #DBEAFE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+        
+        .error-description {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            margin: 2rem 0;
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        .suggestions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .suggestions h3 {
+            font-size: 1.25rem;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+        }
+        
+        .suggestions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .suggestions li {
+            padding: 0.5rem 0;
+        }
+        
+        .suggestions a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .suggestions a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">🩺</div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Página Não Encontrada</h1>
+        <p class="error-description">
+            Ops! Parece que a página que você está procurando não existe ou foi movida.
+            Não se preocupe, vamos te ajudar a encontrar o que precisa!
+        </p>
+        
+        <div class="search-box">
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="🔍 O que você está procurando?"
+                id="searchInput"
+            >
+        </div>
+        
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary btn-large">
+                🏠 Voltar para Home
+            </a>
+            <a href="/login.html" class="btn btn-secondary btn-large">
+                🔐 Fazer Login
+            </a>
+        </div>
+        
+        <div class="suggestions">
+            <h3>Páginas Populares</h3>
+            <ul>
+                <li>🏠 <a href="/">Página Inicial</a></li>
+                <li>📝 <a href="/register.html">Criar Conta</a></li>
+                <li>🔐 <a href="/login.html">Fazer Login</a></li>
+                <li>💰 <a href="/#pricing">Ver Planos</a></li>
+                <li>❓ <a href="/#features">Como Funciona</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Track 404 errors no Google Analytics
+        gtag('event', 'page_not_found', {
+            'page_location': window.location.href,
+            'page_path': window.location.pathname
+        });
+        
+        // Busca simples
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.toLowerCase();
+                
+                // Mapeamento simples de palavras-chave para páginas
+                const pages = {
+                    'login': '/login.html',
+                    'entrar': '/login.html',
+                    'registro': '/register.html',
+                    'cadastro': '/register.html',
+                    'criar conta': '/register.html',
+                    'home': '/',
+                    'inicio': '/',
+                    'preços': '/#pricing',
+                    'planos': '/#pricing',
+                    'funciona': '/#features',
+                    'recursos': '/#features'
+                };
+                
+                for (let keyword in pages) {
+                    if (query.includes(keyword)) {
+                        window.location.href = pages[keyword];
+                        return;
+                    }
+                }
+                
+                // Se não encontrar, vai para home
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

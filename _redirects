@@ -1,0 +1,15 @@
+# ========================================
+# iNurseApp - Netlify Redirects
+# ========================================
+
+# Redirect HTTP para HTTPS
+http://inurseapp.com/* https://inurseapp.com/:splat 301!
+
+# Redirect www para non-www
+https://www.inurseapp.com/* https://inurseapp.com/:splat 301!
+
+# API proxy (opcional - se quiser proxiar chamadas de API)
+# /api/* https://lively-embrace-production-a4a2.up.railway.app/api/:splat 200
+
+# 404 fallback
+/* /404.html 404

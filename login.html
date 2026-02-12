@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - iNurseApp</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5F3XF8G5KN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-5F3XF8G5KN');
+    </script>
+    
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F9FAFB 0%, #DBEAFE 100%);
+            padding: 2rem;
+        }
+        
+        .auth-container {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-subtitle {
+            color: var(--gray-600);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--gray-300);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray-600);
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">🩺</div>
+                <h1 class="auth-title">Bem-vindo de volta</h1>
+                <p class="auth-subtitle">Entre na sua conta iNurseApp</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">E-mail</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="form-input" 
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="form-input" 
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="remember">
+                        <span>Lembrar de mim</span>
+                    </label>
+                    <a href="#" style="font-size: 0.875rem;">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                    Entrar
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou</span>
+            </div>
+
+            <a href="register.html" class="btn btn-secondary btn-block">
+                Criar nova conta
+            </a>
+
+            <div class="auth-footer">
+                <a href="index.html">← Voltar para home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('loginBtn');
+            const alertContainer = document.getElementById('alert-container');
+            
+            // Limpar alertas anteriores
+            alertContainer.innerHTML = '';
+            
+            // Desabilitar botão
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(API_BASE_URL + '/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Salvar token
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Mostrar sucesso
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ Login realizado com sucesso! Redirecionando...
+                        </div>
+                    `;
+                    
+                    // Redirecionar para dashboard
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    throw new Error(data.detail || 'Erro ao fazer login');
+                }
+            } catch (error) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ ${error.message}
+                    </div>
+                `;
+                
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+            }
+        });
+    </script>
+</body>
+</html>

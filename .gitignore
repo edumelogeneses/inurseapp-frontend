@@ -1,0 +1,195 @@
+# ========================================
+# iNurseApp Frontend - .gitignore
+# ========================================
+
+# ====================================
+# Sistema Operacional
+# ====================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ====================================
+# IDEs e Editores
+# ====================================
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (WebStorm, PhpStorm, etc)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# ====================================
+# Dependências (se adicionar build tools)
+# ====================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ====================================
+# Build e Deploy
+# ====================================
+
+# Build outputs
+dist/
+build/
+out/
+
+# Netlify
+.netlify/
+.netlify.toml.backup
+
+# Vercel
+.vercel
+
+# ====================================
+# Logs
+# ====================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# ====================================
+# Cache
+# ====================================
+
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ====================================
+# Temporários
+# ====================================
+
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+
+# ====================================
+# Arquivos Sensíveis
+# ====================================
+
+# Variáveis de ambiente (se adicionar)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Credenciais
+*.pem
+*.key
+*.cert
+
+# ====================================
+# Específico do Projeto
+# ====================================
+
+# Uploads de teste
+uploads/
+test-uploads/
+
+# Áudios de teste locais
+*.mp3
+*.wav
+*.ogg
+*.m4a
+*.flac
+
+# Screenshots e mockups
+screenshots/
+mockups/
+
+# Documentação gerada
+docs/generated/
+
+# ====================================
+# Coverage e Testes
+# ====================================
+
+coverage/
+*.coverage
+.nyc_output/
+.jest/
+
+# ====================================
+# Backup
+# ====================================
+
+backup/
+*.backup
+*-backup.*
+
+# ====================================
+# Misc
+# ====================================
+
+# Lock files de diferentes gerenciadores
+*.lock
+
+# Arquivos compactados
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z

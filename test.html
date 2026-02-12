@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Conexão - iNurseApp</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .test-result {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+        }
+        .success {
+            background: #D1FAE5;
+            border: 1px solid #10B981;
+            color: #065F46;
+        }
+        .error {
+            background: #FEE2E2;
+            border: 1px solid #EF4444;
+            color: #991B1B;
+        }
+        pre {
+            background: var(--gray-100);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Conexão Frontend ↔️ Backend</h1>
+    
+    <div class="test-section">
+        <h2>1. Teste de Conectividade Básica</h2>
+        <p>Verifica se o backend está respondendo</p>
+        <button onclick="testRoot()" class="btn btn-primary">Testar Raiz (/)</button>
+        <div id="root-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Teste de Health Check</h2>
+        <p>Verifica o status de saúde da aplicação</p>
+        <button onclick="testHealth()" class="btn btn-primary">Testar Health</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Teste de Registro de Usuário</h2>
+        <p>Tenta criar uma conta de teste</p>
+        <button onclick="testRegister()" class="btn btn-primary">Testar Registro</button>
+        <div id="register-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Teste de Login</h2>
+        <p>Tenta fazer login com credenciais de teste</p>
+        <button onclick="testLogin()" class="btn btn-primary">Testar Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const API_URL = 'https://lively-embrace-production-a4a2.up.railway.app';
+
+        async function testRoot() {
+            const resultDiv = document.getElementById('root-result');
+            resultDiv.innerHTML = '<p>⏳ Testando...</p>';
+            
+            try {
+                const response = await fetch(API_URL + '/');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result success">
+                        ✅ <strong>Sucesso!</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        ❌ <strong>Erro:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = '<p>⏳ Testando...</p>';
+            
+            try {
+                const response = await fetch(API_URL + '/health');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="test-result success">
+                        ✅ <strong>Sucesso!</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        ❌ <strong>Erro:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testRegister() {
+            const resultDiv = document.getElementById('register-result');
+            resultDiv.innerHTML = '<p>⏳ Testando...</p>';
+            
+            const testUser = {
+                email: `test_${Date.now()}@inurseapp.com`,
+                password: 'Test123!@#',
+                password_confirm: 'Test123!@#',
+                full_name: 'Usuário de Teste'
+            };
+            
+            try {
+                const response = await fetch(API_URL + '/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            ✅ <strong>Usuário criado com sucesso!</strong>
+                            <p>Email: ${testUser.email}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="test-result error">
+                            ⚠️ <strong>Resposta do servidor:</strong>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        ❌ <strong>Erro:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<p>⏳ Testando...</p>';
+            
+            const credentials = {
+                email: 'eduardo@inurseapp.com',
+                password: 'Senha123!'
+            };
+            
+            try {
+                const response = await fetch(API_URL + '/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(credentials)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            ✅ <strong>Login realizado com sucesso!</strong>
+                            <p>Token recebido: ${data.access_token ? '✅ Sim' : '❌ Não'}</p>
+                            <p>Usuário: ${data.user?.full_name || 'N/A'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="test-result error">
+                            ⚠️ <strong>Falha no login:</strong>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        ❌ <strong>Erro:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

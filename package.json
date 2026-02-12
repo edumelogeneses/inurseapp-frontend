@@ -1,0 +1,39 @@
+{
+  "name": "inurseapp-frontend",
+  "version": "1.0.0",
+  "description": "Frontend do iNurseApp - Transforme áudios de consultas em prontuários SOAP com IA",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "test": "echo \"No tests yet\" && exit 0",
+    "lint": "echo \"No linting configured yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edumelogeneses/inurseapp-frontend.git"
+  },
+  "keywords": [
+    "enfermagem",
+    "soap",
+    "prontuario",
+    "ia",
+    "transcricao",
+    "saude",
+    "healthcare",
+    "nursing",
+    "ai",
+    "medical"
+  ],
+  "author": {
+    "name": "Eduardo Elias de Melo",
+    "email": "edumelo@inurseapp.com",
+    "url": "https://inurseapp.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/edumelogeneses/inurseapp-frontend/issues"
+  },
+  "homepage": "https://inurseapp.com",
+  "devDependencies": {},
+  "dependencies": {}
+}

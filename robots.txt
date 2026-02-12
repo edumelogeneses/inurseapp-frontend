@@ -1,0 +1,29 @@
+# ========================================
+# iNurseApp - Robots.txt
+# ========================================
+
+# Permitir todos os bots em todas as páginas públicas
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /login.html
+Allow: /register.html
+
+# Bloquear páginas privadas/admin (quando criar)
+Disallow: /dashboard.html
+Disallow: /admin/
+Disallow: /test.html
+
+# Bloquear assets desnecessários
+Disallow: /*.json$
+Disallow: /*.xml$
+
+# Sitemap
+Sitemap: https://inurseapp.com/sitemap.xml
+
+# Crawl-delay para bots específicos (se necessário)
+# User-agent: Googlebot
+# Crawl-delay: 0
+
+# User-agent: Bingbot
+# Crawl-delay: 1
