@@ -1084,6 +1084,39 @@ function handleComplementRerecord() {
     document.getElementById('btn-complement-record').style.display = 'block';
 }
 
+// Mapa de categoria → seção SOAP (C2)
+const TARGET_SECTION_MAP = {
+    'sinais_vitais':        'objective',
+    'exame_fisico':         'objective',
+    'respiracao':           'objective',
+    'circulacao':           'objective',
+    'integridade_pele':     'objective',
+    'eliminacao_urinaria':  'subjective',
+    'eliminacao_intestinal':'subjective',
+    'nutricao':             'subjective',
+    'cognicao_percepcao':   'subjective',
+    'dor':                  'subjective',
+    'sono_repouso':         'subjective',
+    'sexualidade':          'subjective',
+    'papeis_relacoes':      'subjective',
+};
+
+/**
+ * Resolve seção SOAP destino com base na categoria do sistema (C2)
+ */
+function getTargetSection(categoria) {
+    const key = (categoria || '')
+        .toLowerCase()
+        .replace(/[\s\/]+/g, '_')
+        .replace(/[áàâã]/g, 'a')
+        .replace(/[éê]/g, 'e')
+        .replace(/[íî]/g, 'i')
+        .replace(/[óôõ]/g, 'o')
+        .replace(/[ú]/g, 'u')
+        .replace(/[ç]/g, 'c');
+    return TARGET_SECTION_MAP[key] || 'assessment';
+}
+
 /**
  * Envia áudio de complemento e atualiza SOAP
  */
@@ -1095,6 +1128,13 @@ async function handleComplementSend() {
         const audioBlob = complementState.audioRecorder.getAudioBlob();
         if (!audioBlob) {
             throw new Error('Nenhum áudio gravado');
+        }
+        
+        // C1: Obter PIN do Vault antes de processar
+        const vaultPin = await obterVaultPin();
+        if (!vaultPin) {
+            alert("PIN obrigatório para complementar a nota.");
+            return;
         }
         
         document.getElementById('complement-processing').style.display = 'block';
@@ -1119,25 +1159,39 @@ async function handleComplementSend() {
         
         console.log('✅ Complemento transcrito');
         
+        // C2: Calcular target_section pela categoria do sistema
+        const categoria = soapGenerator.complementingSystem?.categoria || complementState.sistemaNome;
+        const targetSection = getTargetSection(categoria);
+        
         // Gerar complemento (economizando tokens!)
         showToast('🤖 Gerando complemento otimizado...', 'info');
         
         const complementData = {
             audio_id: uploadResponse.id,
             systems_to_address: [complementState.sistemaNome],
-            target_section: 'assessment'
+            target_section: targetSection
         };
         
+        // C1: Passar X-Vault-Pin no header
         const complementResponse = await apiRequest(
-            `/notes/${appState.currentNoteId}/complement`, 
-            'POST', 
-            complementData
+            `/notes/${appState.currentNoteId}/complement`,
+            'POST',
+            complementData,
+            false,
+            { 'X-Vault-Pin': vaultPin }
         );
         
         console.log('✅ Complemento gerado:', complementResponse);
         
-        // Atualizar o campo de Avaliação na interface
-        document.getElementById('soap-assessment').value = complementResponse.assessment;
+        // Atualizar a seção correta na interface (C2)
+        const sectionFieldMap = {
+            'subjective': 'soap-subjective',
+            'objective':  'soap-objective',
+            'assessment': 'soap-assessment',
+            'plan':       'soap-plan',
+        };
+        const fieldId = sectionFieldMap[targetSection] || 'soap-assessment';
+        document.getElementById(fieldId).value = complementResponse[targetSection] || '';
         
         showToast(`✅ Complemento adicionado! Economia: ~${complementResponse.tokens_saved || 2500} tokens`, 'success');
         
