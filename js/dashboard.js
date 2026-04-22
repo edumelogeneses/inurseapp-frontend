@@ -932,49 +932,76 @@ async function downloadNoteTxt(noteId) {
  */
 function formatNoteAsText(note) {
     const date = new Date(note.created_at).toLocaleString('pt-BR');
+    const SEP  = '══════════════════════════════════════════════════════';
+    const sep2 = '──────────────────────────────────────────────────────';
+
     const lines = [
-        '╔══════════════════════════════════════╗',
-        '║         NOTA DE ENFERMAGEM           ║',
-        '╚══════════════════════════════════════╝',
+        `╔${SEP}╗`,
+        `║               NOTA DE ENFERMAGEM                    ║`,
+        `╚${SEP}╝`,
         '',
-        `Data: ${date}`,
-        `Paciente: ${note.patient_name || 'Não informado'}`,
-        note.patient_age ? `Idade: ${note.patient_age} anos` : '',
-        note.patient_gender ? `Sexo: ${note.patient_gender}` : '',
-        note.environment ? `Ambiente: ${note.environment}` : '',
-        note.specialty ? `Especialidade: ${note.specialty}` : '',
-        '',
-        '──────────────────────────────────────',
-        'SOAP',
-        '──────────────────────────────────────',
-        '',
-        'S — SUBJETIVO:',
-        note.subjective || 'Não preenchido',
-        '',
-        'O — OBJETIVO:',
-        note.objective || 'Não preenchido',
-        '',
-        'A — AVALIAÇÃO:',
-        note.assessment || 'Não preenchido',
-        '',
-        'P — PLANO:',
-        note.plan || 'Não preenchido',
+        `Data      : ${date}`,
+        `Paciente  : ${note.patient_name || 'Não informado'}`,
+        note.patient_age    ? `Idade     : ${note.patient_age} anos`   : '',
+        note.patient_gender ? `Sexo      : ${note.patient_gender}`     : '',
+        note.environment    ? `Ambiente  : ${note.environment}`        : '',
+        note.specialty      ? `Especialidade: ${note.specialty}`       : '',
     ];
 
-    // Diagnósticos NANDA
+    // ── Transcrição original (para conferência do profissional) ─────────
+    const transcricao = note.transcription_used || note.transcricao_usada;
+    if (transcricao) {
+        lines.push('', sep2);
+        lines.push('TRANSCRIÇÃO ORIGINAL (conferência — não faz parte da nota oficial)');
+        lines.push(sep2);
+        lines.push('');
+        lines.push(transcricao);
+    }
+
+    // ── SOAP ────────────────────────────────────────────────────────────
+    lines.push('', sep2, 'SOAP', sep2, '');
+    lines.push('S — SUBJETIVO:');
+    lines.push(note.subjective || 'Não preenchido');
+    lines.push('');
+    lines.push('O — OBJETIVO:');
+    lines.push(note.objective || 'Não preenchido');
+    lines.push('');
+    lines.push('A — AVALIAÇÃO:');
+    lines.push(note.assessment || 'Não preenchido');
+    lines.push('');
+    lines.push('P — PLANO:');
+    lines.push(note.plan || 'Não preenchido');
+
+    // ── Diagnósticos NANDA ──────────────────────────────────────────────
     if (note.nanda_diagnoses && note.nanda_diagnoses.length > 0) {
-        lines.push('', '──────────────────────────────────────');
-        lines.push('DIAGNÓSTICOS DE ENFERMAGEM (NANDA)');
-        lines.push('──────────────────────────────────────');
+        lines.push('', sep2);
+        lines.push('DIAGNÓSTICOS DE ENFERMAGEM (NANDA-I / COFEN 564/2017)');
+        lines.push(sep2);
         note.nanda_diagnoses.forEach((d, i) => {
-            lines.push(`\n${i + 1}. ${d.codigo} — ${d.diagnostico}`);
-            if (d.relacionado_a) lines.push(`   Relacionado a: ${d.relacionado_a}`);
+            lines.push(`\n${i + 1}. [${d.codigo || '?'}] ${d.diagnostico || d.titulo || ''}`);
+            if (d.relacionado_a)  lines.push(`   Relacionado a: ${d.relacionado_a}`);
             if (d.evidenciado_por) lines.push(`   Evidenciado por: ${d.evidenciado_por}`);
         });
     }
 
-    lines.push('', '──────────────────────────────────────');
-    lines.push('Gerado pelo iNurseApp');
+    // ── Sugestões de complementação (aviso — não faz parte da nota) ─────
+    const sugestoes = note.sistemas_nao_abordados || note.sugestoes_complementacao || [];
+    const sugestoesAtivas = sugestoes.filter(s => !s.dispensada);
+    if (sugestoesAtivas.length > 0) {
+        lines.push('', sep2);
+        lines.push('SUGESTÕES DE COMPLEMENTAÇÃO  (NÃO fazem parte da nota oficial)');
+        lines.push('Sistemas não abordados nesta consulta — avaliar na próxima visita:');
+        lines.push(sep2);
+        sugestoesAtivas.forEach((s, i) => {
+            lines.push(`\n${i + 1}. ${s.sistema || s.sistema || 'Sistema'}`);
+            if (s.sugestao)       lines.push(`   O que avaliar: ${s.sugestao}`);
+            if (s.texto_sugerido) lines.push(`   Texto pronto : ${s.texto_sugerido}`);
+            if (s.prioridade)     lines.push(`   Prioridade   : ${s.prioridade}`);
+        });
+    }
+
+    lines.push('', sep2);
+    lines.push('Gerado pelo iNurseApp — Resolução COFEN 564/2017');
 
     return lines.filter(l => l !== undefined).join('\n');
 }
