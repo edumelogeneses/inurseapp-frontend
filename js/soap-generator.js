@@ -16,15 +16,79 @@ class SOAPGenerator {
      */
     displaySOAPResult(soapData) {
         this.currentSOAP = soapData;
-        
+
+        // P3: Exibir transcrição original ANTES dos campos SOAP
+        this.displayTranscricaoOriginal(
+            soapData.transcription_used || soapData.transcricao_usada || null
+        );
+
         // Preencher campos SOAP editáveis
         this.fillSOAPFields(soapData.soap);
-        
+
         // Exibir sistemas não abordados
         this.displaySistemasNaoAbordados(soapData.sistemas_nao_abordados || []);
-        
+
         // Exibir diagnósticos NANDA com NIC e NOC
         this.displayDiagnosticosNANDA(soapData.diagnosticos_nanda || []);
+    }
+
+    /**
+     * P3: Exibe seção "Transcrição Original" antes do SOAP
+     * Permite ao profissional conferir se a captura de voz funcionou
+     */
+    displayTranscricaoOriginal(transcricao) {
+        // Reutiliza container existente ou cria dinamicamente antes do SOAP
+        let container = document.getElementById('transcricao-original-section');
+
+        if (!transcricao) {
+            if (container) container.style.display = 'none';
+            return;
+        }
+
+        // Criar seção dinamicamente se não existir no HTML
+        if (!container) {
+            const soapSection = document.getElementById('soap-result') ||
+                                document.querySelector('.soap-fields') ||
+                                document.querySelector('.soap-section');
+            if (!soapSection) return;
+
+            container = document.createElement('div');
+            container.id = 'transcricao-original-section';
+            container.className = 'transcricao-original-section';
+            soapSection.parentNode.insertBefore(container, soapSection);
+        }
+
+        container.innerHTML = '';
+        container.style.display = 'block';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'transcricao-header';
+
+        const title = this._criarElemento('h3', '📝 Transcrição Original', 'transcricao-title');
+        const subtitle = this._criarElemento('p',
+            'Verifique se a captura de voz reproduziu corretamente o atendimento antes de confiar na nota gerada.',
+            'transcricao-subtitle'
+        );
+
+        const btnCopiar = this._criarElemento('button', '📋 Copiar Transcrição', 'btn-copiar-transcricao');
+        btnCopiar.addEventListener('click', () => {
+            navigator.clipboard.writeText(transcricao).then(() => {
+                btnCopiar.textContent = '✓ Copiado!';
+                setTimeout(() => { btnCopiar.textContent = '📋 Copiar Transcrição'; }, 2000);
+            });
+        });
+
+        header.appendChild(title);
+        header.appendChild(subtitle);
+        header.appendChild(btnCopiar);
+        container.appendChild(header);
+
+        // Caixa de texto
+        const box = document.createElement('div');
+        box.className = 'transcricao-box';
+        box.textContent = transcricao; // textContent — seguro contra XSS
+        container.appendChild(box);
     }
 
     /**
@@ -76,6 +140,14 @@ class SOAPGenerator {
             content.className = 'sistema-content';
             content.appendChild(this._criarElemento('h4', sistema.sistema));
             content.appendChild(this._criarElemento('p', sistema.sugestao));
+
+            // P4: exibir "Texto pronto" se disponível
+            if (sistema.texto_sugerido) {
+                const textoBox = document.createElement('div');
+                textoBox.className = 'texto-sugerido-preview';
+                textoBox.textContent = sistema.texto_sugerido;
+                content.appendChild(textoBox);
+            }
             card.appendChild(content);
 
             // Botões de ação
@@ -93,6 +165,19 @@ class SOAPGenerator {
             const btnIgnorar = this._criarElemento('button', '❌ Ignorar', 'btn-ignorar');
             btnIgnorar.title = 'Dispensar esta sugestão';
             btnIgnorar.addEventListener('click', () => this.ignorarSistema(index, sistema.categoria || sistema.sistema));
+
+            // P4: botão "Copiar Texto Pronto" — só aparece se texto_sugerido disponível
+            if (sistema.texto_sugerido) {
+                const btnCopiar = this._criarElemento('button', '📋 Copiar Texto Pronto', 'btn-copiar-sugestao');
+                btnCopiar.title = 'Copiar texto sugerido para área de transferência';
+                btnCopiar.addEventListener('click', () => {
+                    navigator.clipboard.writeText(sistema.texto_sugerido).then(() => {
+                        btnCopiar.textContent = '✓ Copiado!';
+                        setTimeout(() => { btnCopiar.textContent = '📋 Copiar Texto Pronto'; }, 2000);
+                    });
+                });
+                actions.appendChild(btnCopiar);
+            }
 
             actions.appendChild(btnGravar);
             actions.appendChild(btnIncluir);
