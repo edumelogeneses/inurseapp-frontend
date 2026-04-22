@@ -618,6 +618,8 @@ async function handleGenerateSOAP() {
                 avaliacao: response.assessment,
                 plano: response.plan
             },
+            // Bug A fix: passar transcription_used para displayTranscricaoOriginal
+            transcription_used: response.transcription_used || null,
             sistemas_nao_abordados: response.sistemas_nao_abordados || [],
             diagnosticos_nanda: response.nanda_diagnoses || []
         };
@@ -815,6 +817,7 @@ function showNoteModal(note) {
         <span class="sistema-tag">${s.sistema}</span>
     `).join('') || '<p style="color:#6b7280">Todos os sistemas foram abordados.</p>';
 
+    // Bug B fix: seção de transcrição original (criada com DOM para evitar XSS)
     const modal = document.createElement('div');
     modal.id = 'note-view-modal';
     modal.className = 'modal';
@@ -832,6 +835,9 @@ function showNoteModal(note) {
                 <button class="modal-close" onclick="closeNoteModal()">✕</button>
             </div>
             <div class="modal-body">
+                <!-- Transcrição original — inserida via DOM após criar o modal -->
+                <div id="modal-transcricao-placeholder"></div>
+
                 <!-- SOAP -->
                 <div class="soap-section">
                     <h3>📋 SOAP</h3>
@@ -874,6 +880,53 @@ function showNoteModal(note) {
             </div>
         </div>
     `;
+
+    // Bug B fix: injetar transcrição original via DOM (textContent — seguro contra XSS)
+    const transcricao = note.transcription_used || note.transcricao_usada;
+    if (transcricao) {
+        const placeholder = modal.querySelector('#modal-transcricao-placeholder');
+        if (placeholder) {
+            const section = document.createElement('div');
+            section.className = 'soap-section transcricao-original-section';
+            section.style.cssText = 'border-left:4px solid var(--primary-color,#0066CC);margin-bottom:1rem';
+
+            const header = document.createElement('div');
+            header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px';
+
+            const title = document.createElement('h3');
+            title.style.margin = '0';
+            title.textContent = '📝 Transcrição Original';
+
+            const sub = document.createElement('p');
+            sub.style.cssText = 'font-size:0.8rem;color:#6b7280;margin:4px 0 0';
+            sub.textContent = 'Conferência — não faz parte da nota oficial';
+
+            const btnCopiar = document.createElement('button');
+            btnCopiar.className = 'btn-secondary';
+            btnCopiar.style.cssText = 'font-size:0.8rem;padding:4px 10px';
+            btnCopiar.textContent = '📋 Copiar';
+            btnCopiar.addEventListener('click', () => {
+                navigator.clipboard.writeText(transcricao).then(() => {
+                    btnCopiar.textContent = '✓ Copiado!';
+                    setTimeout(() => { btnCopiar.textContent = '📋 Copiar'; }, 2000);
+                });
+            });
+
+            const box = document.createElement('div');
+            box.className = 'transcricao-box';
+            box.textContent = transcricao; // textContent — nunca innerHTML para texto do usuário
+
+            header.appendChild(title);
+            header.appendChild(btnCopiar);
+            section.appendChild(header);
+            section.appendChild(sub);
+            section.appendChild(box);
+            placeholder.replaceWith(section);
+        }
+    } else {
+        const placeholder = modal.querySelector('#modal-transcricao-placeholder');
+        if (placeholder) placeholder.remove();
+    }
 
     // Guardar nota para uso nos botões de exportação
     modal._noteData = note;
