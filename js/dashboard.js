@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     try {
         await initializeDashboard();
+        await verificarVaultSetup();
     } catch (error) {
         console.error('❌ ERRO CRÍTICO ao inicializar dashboard:', error);
         console.error('Stack trace:', error.stack);
@@ -452,6 +453,54 @@ async function handleAudioUpload() {
     } catch (error) {
         console.error('Erro ao enviar áudio:', error);
         showToast('Erro ao enviar áudio: ' + error.message, 'error');
+    }
+}
+
+/**
+ * Verifica se o Vault está configurado e solicita setup se necessário
+ */
+async function verificarVaultSetup() {
+    try {
+        const response = await apiRequest('/auth/vault/status', 'GET');
+        if (!response.configurado) {
+            await mostrarSetupPin();
+        }
+    } catch (error) {
+        console.error('Erro ao verificar vault:', error);
+    }
+}
+
+/**
+ * Modal de configuração inicial do PIN do Vault
+ */
+async function mostrarSetupPin() {
+    const modal = `Configure seu PIN do Vault (6 dígitos).
+
+Este PIN protege os dados dos seus pacientes.
+IMPORTANTE: Guarde-o em local seguro.
+Se esquecer, TODAS as notas ficam irrecuperáveis.
+
+Digite um PIN de 6 dígitos:`;
+
+    let pin = prompt(modal);
+    if (!pin || !/^\d{6}$/.test(pin)) {
+        alert("PIN deve ter exatamente 6 dígitos numéricos.");
+        return mostrarSetupPin();
+    }
+
+    const confirmar = prompt("Digite o PIN novamente para confirmar:");
+    if (confirmar !== pin) {
+        alert("PINs não conferem.");
+        return mostrarSetupPin();
+    }
+
+    try {
+        await apiRequest('/auth/vault/setup', 'POST', { pin });
+        sessionStorage.setItem('vault_pin', pin);
+        alert("✅ PIN configurado com sucesso!");
+    } catch (error) {
+        alert("Erro ao configurar PIN: " + error.message);
+        throw error;
     }
 }
 

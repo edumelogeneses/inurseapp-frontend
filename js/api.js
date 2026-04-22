@@ -84,8 +84,15 @@ async function apiFetch(url, options = {}) {
 
     let response = await fetch(url, options);
 
-    // Intercepta 401 — tenta renovar token uma vez
+    // Intercepta 401 — distinguir entre JWT expirado e PIN incorreto
     if (response.status === 401) {
+        const errorData = await response.clone().json().catch(() => ({}));
+        if (errorData.detail === "PIN incorreto") {
+            sessionStorage.removeItem('vault_pin');
+            alert("PIN incorreto. Digite novamente.");
+            return response;
+        }
+        
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) {
             _redirectToLogin('Sessão expirada. Faça login novamente.');
