@@ -5,10 +5,27 @@
 // ✅ TypeScript: JSDoc types
 // ========================================
 
-// Production API URL
-const API_BASE_URL = 'https://api.inurseapp.com';
-// Development: 'http://localhost:8000'
-// Railway: 'https://lively-embrace-production-a4a2.up.railway.app'
+// ========================================
+// CONFIGURAÇÃO DE AMBIENTE
+// ========================================
+// IMPORTANTE: config.js deve ser carregado ANTES deste arquivo
+// Se config.js não estiver carregado, usa fallback para produção
+
+if (typeof API_BASE_URL === 'undefined') {
+    console.warn('⚠️ config.js não foi carregado. Usando fallback para produção.');
+    
+    // Fallback: detectar automaticamente
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        var API_BASE_URL = 'http://localhost:8000/api/v1';
+        console.log('🔍 Ambiente detectado: Local (localhost)');
+    } else {
+        var API_BASE_URL = 'https://api.inurseapp.com/api/v1';
+        console.log('🔍 Ambiente detectado: Produção');
+    }
+} else {
+    console.log('✅ config.js carregado. Usando:', API_BASE_URL);
+}
 
 /**
  * @typedef {Object} User
@@ -33,6 +50,71 @@ const API_BASE_URL = 'https://api.inurseapp.com';
 // Utility: Sleep for retry logic
 // ========================================
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// ========================================
+// Utility: Redirect to login with message
+// ========================================
+function _redirectToLogin(mensagem) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    if (mensagem) {
+        sessionStorage.setItem('login_message', mensagem);
+    }
+    window.location.href = 'login.html';
+}
+
+// ========================================
+// API Fetch with 401 Interceptor
+// ========================================
+async function apiFetch(url, options = {}) {
+    // Adiciona Authorization header automaticamente
+    const token = localStorage.getItem('access_token');
+    const defaultHeaders = {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+    
+    // Apenas adiciona Content-Type se não for FormData
+    if (!(options.body instanceof FormData)) {
+        defaultHeaders['Content-Type'] = 'application/json';
+    }
+    
+    options.headers = { ...defaultHeaders, ...options.headers };
+    options.credentials = 'include';
+
+    let response = await fetch(url, options);
+
+    // Intercepta 401 — tenta renovar token uma vez
+    if (response.status === 401) {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) {
+            _redirectToLogin('Sessão expirada. Faça login novamente.');
+            return response;
+        }
+        try {
+            const refreshResponse = await fetch(
+                API_BASE_URL + '/auth/refresh',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken }),
+                }
+            );
+            if (!refreshResponse.ok) throw new Error('Refresh falhou');
+
+            const data = await refreshResponse.json();
+            localStorage.setItem('access_token', data.access_token);
+
+            // Repete a requisição original com novo token
+            options.headers['Authorization'] = `Bearer ${data.access_token}`;
+            response = await fetch(url, options);
+        } catch {
+            _redirectToLogin('Sessão expirada. Faça login novamente.');
+            return response;
+        }
+    }
+    return response;
+}
 
 // ========================================
 // Utility: Sanitize HTML to prevent XSS
@@ -81,7 +163,17 @@ const API = {
     // Get user data
     getUser() {
         const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
+        // Verificar se não é null, não é string vazia, e não é string "undefined"
+        if (!user || user === 'undefined' || user === 'null') {
+            return null;
+        }
+        try {
+            return JSON.parse(user);
+        } catch (error) {
+            console.error('Erro ao fazer parse do user:', error);
+            localStorage.removeItem('user'); // Limpar dados corrompidos
+            return null;
+        }
     },
     
     setUser(user) {
@@ -117,30 +209,15 @@ const API = {
     
     // Make authenticated request
     async request(endpoint, options = {}) {
-        const token = this.getToken();
-        
         const config = {
             ...options,
             headers: {
-                'Content-Type': 'application/json',
                 ...options.headers,
-            },
-            // ✅ MELHORIA: Incluir credentials para cookies
-            credentials: 'include'
+            }
         };
         
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
-        
         try {
-            const response = await fetch(API_BASE_URL + endpoint, config);
-            
-            // Se não autorizado, fazer logout
-            if (response.status === 401) {
-                this.logout();
-                throw new Error('Sessão expirada. Faça login novamente.');
-            }
+            const response = await apiFetch(API_BASE_URL + endpoint, config);
             
             // ✅ MELHORIA: Mapear erros específicos
             if (!response.ok) {
@@ -196,17 +273,13 @@ const API = {
     
     // Upload file
     async upload(endpoint, file) {
-        const token = this.getToken();
         const formData = new FormData();
         formData.append('file', file);
         
-        const response = await fetch(API_BASE_URL + endpoint, {
+        const response = await apiFetch(API_BASE_URL + endpoint, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData,
-            credentials: 'include'
+            headers: {},  // apiFetch adiciona Authorization automaticamente
+            body: formData
         });
         
         if (!response.ok) {
@@ -392,8 +465,48 @@ style.textContent = `
 document.head.appendChild(style);
 
 // ========================================
+// Função apiRequest standalone para test-api.html
+// ========================================
+/**
+ * API Request helper (usado pelo test-api.html e dashboard)
+ * @param {string} endpoint - Endpoint da API (ex: '/notes')
+ * @param {string} method - Método HTTP (GET, POST, PUT, DELETE)
+ * @param {Object|FormData} data - Dados a enviar (opcional)
+ * @param {boolean} isFormData - Se os dados são FormData (para upload)
+ */
+async function apiRequest(endpoint, method = 'GET', data = null, isFormData = false) {
+    const config = {
+        method,
+        headers: {}
+    };
+
+    if (data) {
+        if (isFormData) {
+            config.body = data;
+            delete config.headers['Content-Type']; // Let browser set multipart boundary
+        } else {
+            config.body = JSON.stringify(data);
+        }
+    }
+
+    try {
+        const response = await apiFetch(API_BASE_URL + endpoint, config);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.message || `Erro HTTP ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('API Request Error:', error);
+        throw error;
+    }
+}
+
+// ========================================
 // Export para uso em outros scripts
 // ========================================
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { API, showLoading, hideLoading, showToast, showAlert };
+    module.exports = { API, apiRequest, showLoading, hideLoading, showToast, showAlert };
 }
