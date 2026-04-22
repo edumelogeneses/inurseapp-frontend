@@ -113,6 +113,20 @@ async function apiFetch(url, options = {}) {
             return response;
         }
     }
+    
+    // Intercepta 422 — PIN do Vault incorreto
+    if (response.status === 422) {
+        try {
+            const errorData = await response.clone().json();
+            if (errorData.detail && (errorData.detail.includes('Vault') || errorData.detail.includes('PIN'))) {
+                sessionStorage.removeItem('vault_pin');
+                alert('PIN do Vault incorreto. Digite novamente.');
+            }
+        } catch {
+            // Ignora se não conseguir fazer parse do JSON
+        }
+    }
+    
     return response;
 }
 
@@ -188,7 +202,9 @@ const API = {
     // Logout
     logout() {
         sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('vault_pin');
         localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
         window.location.href = 'login.html';
     },
@@ -473,11 +489,12 @@ document.head.appendChild(style);
  * @param {string} method - Método HTTP (GET, POST, PUT, DELETE)
  * @param {Object|FormData} data - Dados a enviar (opcional)
  * @param {boolean} isFormData - Se os dados são FormData (para upload)
+ * @param {Object} customHeaders - Headers customizados (ex: {'X-Vault-Pin': '123456'})
  */
-async function apiRequest(endpoint, method = 'GET', data = null, isFormData = false) {
+async function apiRequest(endpoint, method = 'GET', data = null, isFormData = false, customHeaders = {}) {
     const config = {
         method,
-        headers: {}
+        headers: { ...customHeaders }
     };
 
     if (data) {

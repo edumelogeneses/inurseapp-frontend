@@ -456,6 +456,39 @@ async function handleAudioUpload() {
 }
 
 /**
+ * Obtém o PIN do Vault (solicita ao usuário se necessário)
+ * @returns {Promise<string|null>} PIN de 6 dígitos ou null se inválido/cancelado
+ */
+async function obterVaultPin() {
+    // Tenta recuperar da sessão atual
+    let pin = sessionStorage.getItem('vault_pin');
+    if (pin) return pin;
+
+    // Solicita ao usuário
+    pin = prompt(
+        "Digite seu PIN de 6 dígitos do Vault:\n" +
+        "(Este PIN protege os dados dos seus pacientes e " +
+        "é necessário para gerar notas)"
+    );
+
+    if (!pin || pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+        alert("PIN inválido. Deve conter exatamente 6 dígitos.");
+        return null;
+    }
+
+    // Salva na sessão (apagado ao fechar a aba)
+    sessionStorage.setItem('vault_pin', pin);
+    return pin;
+}
+
+/**
+ * Limpa o PIN do Vault da sessão
+ */
+function limparVaultPin() {
+    sessionStorage.removeItem('vault_pin');
+}
+
+/**
  * Gera nota SOAP
  */
 async function handleGenerateSOAP() {
@@ -496,7 +529,16 @@ async function handleGenerateSOAP() {
             console.log('✅ Áudio já foi transcrito anteriormente, pulando transcrição');
         }
         
-        // Passo 2: Gerar SOAP
+        // Passo 2: Obter PIN do Vault
+        const vaultPin = await obterVaultPin();
+        if (!vaultPin) {
+            alert("PIN obrigatório para gerar a nota.");
+            document.getElementById('processing-status').style.display = 'none';
+            document.getElementById('btn-generate-soap').disabled = false;
+            return;
+        }
+        
+        // Passo 3: Gerar SOAP
         document.getElementById('status-transcribing').style.display = 'none';
         document.getElementById('status-generating').style.display = 'block';
 
@@ -508,7 +550,13 @@ async function handleGenerateSOAP() {
             chief_complaint: chiefComplaint || null
         };
 
-        const response = await apiRequest('/notes/', 'POST', noteData);
+        const response = await apiRequest(
+            '/notes/',
+            'POST',
+            noteData,
+            false,
+            { 'X-Vault-Pin': vaultPin }
+        );
         appState.currentNoteId = response.id;
 
         showToast('✅ Nota SOAP gerada com sucesso!', 'success');
@@ -1176,6 +1224,7 @@ function resetToNewNote() {
 function logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('vault_pin');
     window.location.href = '/login.html';
 }
 
