@@ -135,3 +135,18 @@ function logout() {
     sessionStorage.removeItem('vault_pin');
     window.location.href = 'login.html';
 }
+
+// Password strength indicator (0-4)
+// Critérios alinhados com o backend (app/schemas/user.py):
+//   1 — mínimo 8 caracteres
+//   2 — + letra maiúscula
+//   3 — + letra minúscula
+//   4 — + número
+function getPasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    return score;
+}
