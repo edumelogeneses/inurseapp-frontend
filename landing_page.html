@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="iNurseapp — Documentação clínica com IA para enfermeiros brasileiros. SOAP, SAE, NANDA-NIC-NOC e passagem de plantão SBAR gerados automaticamente por voz." />
+  <meta property="og:title" content="iNurseapp — Documentação clínica por voz" />
+  <meta property="og:description" content="Grave a consulta, o iNurseapp gera SOAP, SAE e passagem de plantão em segundos." />
+  <title>iNurseapp — Documentação clínica com IA para enfermeiros</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Variables ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:  #1B2B6B;
+      --blue:  #2563EB;
+      --teal:  #00C9A7;
+      --dark:  #1E293B;
+      --gray:  #64748B;
+      --light: #F8FAFC;
+      --white: #FFFFFF;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,.14);
+      --radius: 14px;
+      --transition: .22s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      color: var(--dark);
+      background: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    .container {
+      width: 100%;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Typography ────────────────────────────────────── */
+    h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.1; letter-spacing: -.02em; }
+    h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
+    h3 { font-size: clamp(18px, 2.5vw, 24px); font-weight: 700; line-height: 1.3; }
+    p  { color: var(--gray); line-height: 1.7; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Buttons ───────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--teal);
+      color: var(--navy);
+      box-shadow: 0 4px 20px rgba(0,201,167,.35);
+    }
+    .btn-primary:hover { background: #00b396; box-shadow: 0 6px 28px rgba(0,201,167,.45); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,.5);
+    }
+    .btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,.08); }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+    .btn-outline:hover { background: var(--blue); color: var(--white); }
+    .btn-lg { padding: 17px 36px; font-size: 16px; border-radius: 12px; }
+
+    /* ── Section layout ────────────────────────────────── */
+    section { padding: 80px 0; }
+    .section-label {
+      display: inline-block;
+      background: rgba(37,99,235,.10);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .section-title { margin-bottom: 16px; }
+    .section-sub  { font-size: 18px; max-width: 600px; margin: 0 auto 56px; }
+
+    /* ── Scroll animation ──────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up.delay-1 { transition-delay: .10s; }
+    .fade-up.delay-2 { transition-delay: .20s; }
+    .fade-up.delay-3 { transition-delay: .30s; }
+    .fade-up.delay-4 { transition-delay: .40s; }
+    .fade-up.delay-5 { transition-delay: .50s; }
+    .fade-up.delay-6 { transition-delay: .60s; }
+
+    /* ══════════════════════════════════════════════════════
+       1. NAVBAR
+    ══════════════════════════════════════════════════════ */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: background var(--transition), box-shadow var(--transition), backdrop-filter var(--transition);
+    }
+    .navbar.scrolled {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-md);
+    }
+    .navbar .container { display: flex; align-items: center; justify-content: space-between; }
+
+    .nav-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -.02em;
+      transition: color var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .navbar.scrolled .nav-logo { color: var(--navy); }
+    .nav-logo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: none;
+      gap: 32px;
+      align-items: center;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,.85);
+      transition: color var(--transition);
+    }
+    .navbar.scrolled .nav-links a { color: var(--dark); }
+    .nav-links a:hover { color: var(--teal) !important; }
+
+    .nav-cta {
+      display: none;
+    }
+
+    .hamburger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: background var(--transition), transform var(--transition), opacity var(--transition);
+    }
+    .navbar.scrolled .hamburger span { background: var(--dark); }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      background: var(--white);
+      padding: 12px 0 20px;
+      box-shadow: var(--shadow-lg);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      padding: 13px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--dark);
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .mobile-menu a:last-child { border: none; }
+    .mobile-menu a:hover { color: var(--blue); background: var(--light); }
+    .mobile-menu .btn { margin: 12px 24px 0; }
+
+    @media (min-width: 768px) {
+      .nav-links { display: flex; }
+      .nav-cta { display: inline-flex; }
+      .hamburger { display: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       2. HERO
+    ══════════════════════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(140deg, var(--navy) 0%, #1e3a8a 55%, #1d4ed8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(0,201,167,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-content { text-align: center; }
+    .hero h1 { color: var(--white); margin-bottom: 20px; }
+    .hero p {
+      font-size: 18px;
+      color: rgba(255,255,255,.80);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.20);
+      color: rgba(255,255,255,.90);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 100px;
+      margin-top: 28px;
+    }
+    .hero-badge::before { content: '🔒'; font-size: 14px; }
+
+    /* App mockup card */
+    .app-mockup {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,.12);
+      overflow: hidden;
+      max-width: 420px;
+      margin: 0 auto;
+      font-size: 13px;
+    }
+    .mockup-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--navy);
+      color: var(--white);
+    }
+    .mockup-titlebar .app-name { font-weight: 700; font-size: 14px; }
+    .mockup-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+    .mockup-status::before { content: '●'; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .mockup-header {
+      background: var(--light);
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--dark);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .mockup-body { padding: 0; }
+    .soap-row {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 8px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--dark);
+    }
+    .soap-row:last-child { border-bottom: none; }
+    .soap-letter {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--navy);
+      color: var(--white);
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .soap-letter.s { background: var(--blue); }
+    .soap-letter.o { background: #7c3aed; }
+    .soap-letter.a { background: #059669; }
+    .soap-letter.p { background: #d97706; }
+    .soap-text { font-size: 12.5px; color: var(--dark); line-height: 1.5; }
+    .soap-text strong { display: block; font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--gray); letter-spacing: .05em; margin-bottom: 3px; }
+
+    .mockup-scales {
+      padding: 12px 18px;
+      background: #fff8f8;
+      border-top: 2px solid #fee2e2;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scale-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .scale-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+
+    @media (min-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+      }
+      .hero-content { text-align: left; }
+      .hero p { margin: 0 0 36px; }
+      .hero-ctas { justify-content: flex-start; }
+      .hero-badge { margin-top: 28px; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       3. SOCIAL PROOF
+    ══════════════════════════════════════════════════════ */
+    .social-proof {
+      padding: 36px 0;
+      background: var(--light);
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .social-proof .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .proof-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gray);
+    }
+    .proof-logos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 28px;
+    }
+    .proof-logo-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--white);
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gray);
+      transition: border-color var(--transition), color var(--transition);
+    }
+    .proof-logo-item:hover { border-color: var(--blue); color: var(--blue); }
+    .proof-logo-item span { font-size: 18px; }
+
+    /* ══════════════════════════════════════════════════════
+       4. COMO FUNCIONA
+    ══════════════════════════════════════════════════════ */
+    .how-it-works { background: var(--white); text-align: center; }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-top: 0;
+      position: relative;
+    }
+    .step-card {
+      background: var(--white);
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+      position: relative;
+    }
+    .step-card:hover { box-shadow: var(--shadow-md); border-color: var(--blue); transform: translateY(-4px); }
+    .step-number {
+      position: absolute;
+      top: -16px;
+      left: 32px;
+      background: var(--blue);
+      color: var(--white);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-emoji { font-size: 48px; margin-bottom: 20px; }
+    .step-card h3 { margin-bottom: 12px; color: var(--dark); }
+    .step-card p { font-size: 15px; }
+
+    @media (min-width: 768px) {
+      .steps-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       5. FUNCIONALIDADES
+    ══════════════════════════════════════════════════════ */
+    .features { background: var(--light); text-align: center; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #e2e8f0;
+      transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+    }
+    .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); border-color: var(--teal); }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 18px; margin-bottom: 10px; color: var(--dark); }
+    .feature-card p  { font-size: 14px; }
+
+    .icon-blue  { background: rgba(37,99,235,.10); }
+    .icon-teal  { background: rgba(0,201,167,.12); }
+    .icon-navy  { background: rgba(27,43,107,.10); }
+    .icon-green { background: rgba(5,150,105,.10); }
+    .icon-orange{ background: rgba(234,88,12,.10); }
+    .icon-purple{ background: rgba(124,58,237,.10); }
+
+    @media (min-width: 600px)  { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .features-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ══════════════════════════════════════════════════════
+       6. PARA QUEM
+    ══════════════════════════════════════════════════════ */
+    .for-who { background: var(--white); text-align: center; }
+    .for-who-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .persona-card {
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      transition: box-shadow var(--transition), transform var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .persona-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+    }
+    .persona-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+    .persona-emoji { font-size: 40px; margin-bottom: 16px; }
+    .persona-card h3 { font-size: 18px; margin-bottom: 10px; color: var(--dark); }
+    .persona-card p  { font-size: 14px; margin-bottom: 16px; }
+    .persona-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      background: var(--light);
+      color: var(--dark);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 100px;
+      border: 1px solid #e2e8f0;
+    }
+
+    @media (min-width: 600px)  { .for-who-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .for-who-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* ══════════════════════════════════════════════════════
+       7. PREÇOS
+    ══════════════════════════════════════════════════════ */
+    .pricing { background: var(--light); text-align: center; }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--white);
+      border-radius: 18px;
+      padding: 36px 28px;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .pricing-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+    .pricing-card.featured {
+      border: 2px solid var(--blue);
+      position: relative;
+      box-shadow: 0 8px 40px rgba(37,99,235,.18);
+    }
+    .popular-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 18px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .plan-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray); margin-bottom: 8px; }
+    .plan-price { font-size: 42px; font-weight: 800; color: var(--dark); line-height: 1; margin-bottom: 6px; }
+    .plan-price span { font-size: 18px; font-weight: 500; color: var(--gray); }
+    .plan-desc { font-size: 14px; color: var(--gray); margin-bottom: 28px; }
+    .plan-features { margin-bottom: 28px; }
+    .plan-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--dark);
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .plan-feature:last-child { border: none; }
+    .check { color: var(--teal); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .pricing-card .btn { width: 100%; justify-content: center; }
+    .pricing-card.featured .btn { background: var(--blue); color: var(--white); box-shadow: 0 4px 20px rgba(37,99,235,.30); }
+    .pricing-card.featured .btn:hover { background: #1d4ed8; }
+
+    @media (min-width: 1024px) {
+      .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       8. FAQ
+    ══════════════════════════════════════════════════════ */
+    .faq { background: var(--white); }
+    .faq-inner { max-width: 720px; margin: 0 auto; }
+    .faq-header { text-align: center; margin-bottom: 48px; }
+    .faq-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .faq-item.open { border-color: var(--blue); }
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 20px 24px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dark);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .faq-question:hover { color: var(--blue); }
+    .faq-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: transform var(--transition), border-color var(--transition), background var(--transition);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--blue);
+    }
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      background: var(--blue);
+      border-color: var(--blue);
+      color: var(--white);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease, padding .35s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; }
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      font-size: 14.5px;
+      color: var(--gray);
+      line-height: 1.75;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       9. CTA FINAL
+    ══════════════════════════════════════════════════════ */
+    .cta-final {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3a8a 60%, #1d4ed8 100%);
+      text-align: center;
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-final::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(0,201,167,.15) 0%, transparent 70%);
+    }
+    .cta-final h2 { color: var(--white); margin-bottom: 16px; position: relative; }
+    .cta-final .sub {
+      font-size: 18px;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 36px;
+      position: relative;
+    }
+    .cta-final .small-note {
+      font-size: 13px;
+      color: rgba(255,255,255,.50);
+      margin-top: 16px;
+      position: relative;
+    }
+    .cta-final .btn { position: relative; }
+
+    /* ══════════════════════════════════════════════════════
+       10. FOOTER
+    ══════════════════════════════════════════════════════ */
+    .footer {
+      background: var(--dark);
+      padding: 60px 0 32px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer-brand .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .footer-brand p {
+      font-size: 14px;
+      color: rgba(255,255,255,.50);
+      max-width: 260px;
+      margin: 0;
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: rgba(255,255,255,.40);
+      margin-bottom: 16px;
+    }
+    .footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a {
+      font-size: 14px;
+      color: rgba(255,255,255,.65);
+      transition: color var(--transition);
+    }
+    .footer-col a:hover { color: var(--teal); }
+    .social-links { display: flex; gap: 10px; margin-top: 16px; }
+    .social-link {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: background var(--transition);
+    }
+    .social-link:hover { background: rgba(255,255,255,.18); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      text-align: center;
+    }
+    .footer-bottom p {
+      font-size: 13px;
+      color: rgba(255,255,255,.35);
+      margin: 0;
+    }
+
+    @media (min-width: 600px)  { .footer-top { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) {
+      .footer-top { grid-template-columns: 2fr 1fr 1fr 1fr; }
+      .footer-bottom { flex-direction: row; justify-content: space-between; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     1. NAVBAR
+══════════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="nav-logo">
+      i<span class="nav-logo-badge">N</span> iNurseapp
+    </a>
+    <ul class="nav-links">
+      <li><a href="#funcionalidades">Funcionalidades</a></li>
+      <li><a href="#para-quem">Para quem</a></li>
+      <li><a href="#precos">Preços</a></li>
+      <li><a href="#faq">Blog</a></li>
+    </ul>
+    <a href="#cta-final" class="btn btn-primary nav-cta">Começar grátis</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#para-quem">Para quem</a>
+    <a href="#precos">Preços</a>
+    <a href="#faq">Blog</a>
+    <a href="#cta-final" class="btn btn-primary">Começar grátis</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     2. HERO
+══════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content fade-up">
+        <h1>Documentação clínica completa <span class="gradient-text">em segundos</span></h1>
+        <p>Grave a consulta, o iNurseapp transcreve, gera SOAP, SAE com NANDA‑NIC‑NOC e passagem de plantão. Tudo em português, para enfermeiros brasileiros.</p>
+        <div class="hero-ctas">
+          <a href="#cta-final" class="btn btn-primary btn-lg">🚀 Testar 14 dias grátis</a>
+          <a href="#como-funciona" class="btn btn-secondary btn-lg">Ver demonstração</a>
+        </div>
+        <div class="hero-badge">Privacidade LGPD — dados nunca saem do Brasil</div>
+      </div>
+
+      <div class="fade-up delay-2">
+        <div class="app-mockup">
+          <div class="mockup-titlebar">
+            <span class="app-name">iNurseapp</span>
+            <span class="mockup-status">Gerado</span>
+          </div>
+          <div class="mockup-header">SOAP — Consulta de Enfermagem</div>
+          <div class="mockup-body">
+            <div class="soap-row">
+              <div class="soap-letter s">S</div>
+              <div class="soap-text">
+                <strong>Subjetivo</strong>
+                Paciente refere dor lombar há 3 dias, EVA 6/10, piora à movimentação. Relata dificuldade para deambular.
+              </div>
+            </div>
+            <div class="soap-row">
+              <div class="soap-letter o">O</div>
+              <div class="soap-text">
+                <strong>Objetivo</strong>
+                PA 130/80 mmHg · FC 78 bpm · Tax 36.8°C · SpO₂ 98% · FR 16 irpm. Marcha antálgica. Sem edema.
+              </div>
+            </div>
+            <div class="soap-row">
+              <div class="soap-letter a">A</div>
+              <div class="soap-text">
+                <strong>Avaliação</strong>
+                Dor aguda (00132) relacionada a processo inflamatório evidenciada por relato verbal EVA 6/10.
+              </div>
+            </div>
+            <div class="soap-row">
+              <div class="soap-letter p">P</div>
+              <div class="soap-text">
+                <strong>Plano</strong>
+                Orientações sobre repouso relativo, analgesia conforme prescrição, aplicação de calor local.
+              </div>
+            </div>
+          </div>
+          <div class="mockup-scales">
+            <div class="scale-badge">
+              <div class="scale-dot dot-red"></div>
+              Braden 12 — Risco Alto de LP
+            </div>
+            <div class="scale-badge">
+              <div class="scale-dot dot-yellow"></div>
+              Morse 25 — Risco Moderado de Queda
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     3. SOCIAL PROOF
+══════════════════════════════════════════════════════ -->
+<div class="social-proof">
+  <div class="container">
+    <p class="proof-label">Usado por enfermeiros em</p>
+    <div class="proof-logos">
+      <div class="proof-logo-item"><span>🏥</span> UBS / APS</div>
+      <div class="proof-logo-item"><span>🏠</span> Home Care</div>
+      <div class="proof-logo-item"><span>⚡</span> UTI</div>
+      <div class="proof-logo-item"><span>🏨</span> Hospitalar</div>
+      <div class="proof-logo-item"><span>🧠</span> Saúde Mental</div>
+      <div class="proof-logo-item"><span>🔪</span> CC / Cirúrgico</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     4. COMO FUNCIONA
+══════════════════════════════════════════════════════ -->
+<section class="how-it-works" id="como-funciona">
+  <div class="container">
+    <div class="fade-up">
+      <span class="section-label">Como funciona</span>
+      <h2 class="section-title">Do atendimento à nota <span class="gradient-text">em 3 passos</span></h2>
+      <p class="section-sub">Simples o suficiente para começar hoje. Poderoso o suficiente para o dia a dia clínico.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card fade-up delay-1">
+        <div class="step-number">1</div>
+        <div class="step-emoji">🎤</div>
+        <h3>Grave a consulta</h3>
+        <p>Fale normalmente com o paciente. O iNurseapp captura o áudio com segurança, de-identificando os dados antes de qualquer processamento.</p>
+      </div>
+      <div class="step-card fade-up delay-2">
+        <div class="step-number">2</div>
+        <div class="step-emoji">🧠</div>
+        <h3>IA transforma em documentação</h3>
+        <p>SOAP estruturado, SAE completa com diagnósticos NANDA, intervenções NIC e resultados NOC, escalas clínicas e passagem de plantão gerados automaticamente.</p>
+      </div>
+      <div class="step-card fade-up delay-3">
+        <div class="step-number">3</div>
+        <div class="step-emoji">✅</div>
+        <h3>Revise e assine</h3>
+        <p>Confira em segundos, edite se necessário e finalize com segurança jurídica. Auditoria imutável de cada ação registrada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     5. FUNCIONALIDADES
+══════════════════════════════════════════════════════ -->
+<section class="features" id="funcionalidades">
+  <div class="container">
+    <div class="fade-up">
+      <span class="section-label">Funcionalidades</span>
+      <h2 class="section-title">Tudo que um enfermeiro <span class="gradient-text">precisa</span></h2>
+      <p class="section-sub">De ponta a ponta, do áudio à nota assinada, com tecnologia desenvolvida para a realidade brasileira.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-up delay-1">
+        <div class="feature-icon icon-blue">📋</div>
+        <h3>SOAP Completo</h3>
+        <p>Subjetivo, Objetivo, Avaliação e Plano gerados automaticamente a partir da gravação. Estrutura clara, linguagem técnica, pronto para assinar.</p>
+      </div>
+      <div class="feature-card fade-up delay-2">
+        <div class="feature-icon icon-teal">🩺</div>
+        <h3>SAE com NANDA‑NIC‑NOC</h3>
+        <p>Taxonomia completa de enfermagem. Diagnósticos, intervenções e resultados esperados integrados a cada nota, conforme COFEN 358/2009.</p>
+      </div>
+      <div class="feature-card fade-up delay-3">
+        <div class="feature-icon icon-orange">📊</div>
+        <h3>Escalas Clínicas Automáticas</h3>
+        <p>Braden, Morse e MEWS calculados automaticamente. Alertas de risco com condutas baseadas em protocolo MS, SOBEST, SBGG e AMIB.</p>
+      </div>
+      <div class="feature-card fade-up delay-4">
+        <div class="feature-icon icon-purple">🔄</div>
+        <h3>Passagem de Plantão (SBAR)</h3>
+        <p>SBAR gerado automaticamente consolidando todas as notas do turno por paciente. Formato ISBAR adaptado para enfermagem brasileira.</p>
+      </div>
+      <div class="feature-card fade-up delay-5">
+        <div class="feature-icon icon-navy">🗂️</div>
+        <h3>20 Workflows Especializados</h3>
+        <p>UBS, UTI, PS, CC, Home Care, Saúde Mental e mais. Cada especialidade com campos obrigatórios, alertas e vocabulário técnico específico.</p>
+      </div>
+      <div class="feature-card fade-up delay-6">
+        <div class="feature-icon icon-green">🔒</div>
+        <h3>Privacidade por Design</h3>
+        <p>De-identificação antes de qualquer IA externa. Zero dados de paciente fora do dispositivo. LGPD Art. 46 — Auditoria imutável completa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     6. PARA QUEM É
+══════════════════════════════════════════════════════ -->
+<section class="for-who" id="para-quem">
+  <div class="container">
+    <div class="fade-up">
+      <span class="section-label">Para quem é</span>
+      <h2 class="section-title">Feito para <span class="gradient-text">enfermeiros brasileiros</span></h2>
+      <p class="section-sub">Independente do ambiente de atuação, o iNurseapp se adapta ao seu fluxo de trabalho.</p>
+    </div>
+    <div class="for-who-grid">
+      <div class="persona-card fade-up delay-1">
+        <div class="persona-emoji">🏥</div>
+        <h3>Enfermeiro de UBS</h3>
+        <p>HiperDia, pré-natal, puericultura, visita domiciliar. Integra com fluxos do e-SUS APS e libera tempo para o cuidado.</p>
+        <div class="persona-tags">
+          <span class="tag">HiperDia</span>
+          <span class="tag">Pré-natal</span>
+          <span class="tag">e-SUS</span>
+          <span class="tag">PNAB</span>
+        </div>
+      </div>
+      <div class="persona-card fade-up delay-2">
+        <div class="persona-emoji">🏠</div>
+        <h3>Home Care</h3>
+        <p>Avaliação de LPP, dispositivos domiciliares, cuidador. Braden e Morse automáticos. Registro completo em cada visita.</p>
+        <div class="persona-tags">
+          <span class="tag">Braden</span>
+          <span class="tag">LPP</span>
+          <span class="tag">RDC 11</span>
+          <span class="tag">Cuidador</span>
+        </div>
+      </div>
+      <div class="persona-card fade-up delay-3">
+        <div class="persona-emoji">⚡</div>
+        <h3>UTI e Hospitalar</h3>
+        <p>VM, sedação, bundles de qualidade, escalas críticas MEWS. Passagem de plantão SBAR em segundos para o próximo turno.</p>
+        <div class="persona-tags">
+          <span class="tag">MEWS</span>
+          <span class="tag">RASS</span>
+          <span class="tag">Bundle PAV</span>
+          <span class="tag">SBAR</span>
+        </div>
+      </div>
+      <div class="persona-card fade-up delay-4">
+        <div class="persona-emoji">🩻</div>
+        <h3>Clínica e Ambulatório</h3>
+        <p>Consultas ágeis, documentação completa, segurança jurídica em cada atendimento. Mais tempo para o paciente.</p>
+        <div class="persona-tags">
+          <span class="tag">SOAP</span>
+          <span class="tag">SAE</span>
+          <span class="tag">NANDA</span>
+          <span class="tag">Assinatura</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     7. PREÇOS
+══════════════════════════════════════════════════════ -->
+<section class="pricing" id="precos">
+  <div class="container">
+    <div class="fade-up">
+      <span class="section-label">Preços</span>
+      <h2 class="section-title">Simples e <span class="gradient-text">transparente</span></h2>
+      <p class="section-sub">14 dias grátis em qualquer plano. Sem cartão de crédito para começar.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <!-- Básico -->
+      <div class="pricing-card fade-up delay-1">
+        <div class="plan-name">Básico</div>
+        <div class="plan-price">R$&nbsp;39<span>,90/mês</span></div>
+        <div class="plan-desc">Para quem está começando</div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> SOAP por voz</li>
+          <li class="plan-feature"><span class="check">✓</span> SAE com NANDA‑NIC‑NOC</li>
+          <li class="plan-feature"><span class="check">✓</span> Escalas clínicas automáticas</li>
+          <li class="plan-feature"><span class="check">✓</span> 100 notas/mês</li>
+          <li class="plan-feature"><span class="check">✓</span> Suporte por e-mail</li>
+        </ul>
+        <a href="#cta-final" class="btn btn-outline">Começar grátis</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="pricing-card featured fade-up delay-2">
+        <div class="popular-badge">⭐ Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">R$&nbsp;59<span>,90/mês</span></div>
+        <div class="plan-desc">Para uso diário profissional</div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> Tudo do Básico</li>
+          <li class="plan-feature"><span class="check">✓</span> Passagem de plantão SBAR</li>
+          <li class="plan-feature"><span class="check">✓</span> 20 workflows especializados</li>
+          <li class="plan-feature"><span class="check">✓</span> Notas ilimitadas</li>
+          <li class="plan-feature"><span class="check">✓</span> Histórico completo</li>
+          <li class="plan-feature"><span class="check">✓</span> Suporte prioritário</li>
+        </ul>
+        <a href="#cta-final" class="btn">Começar grátis</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="pricing-card fade-up delay-3">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:28px;padding-top:8px">Sob consulta</div>
+        <div class="plan-desc">Para instituições e equipes</div>
+        <ul class="plan-features">
+          <li class="plan-feature"><span class="check">✓</span> Tudo do Pro</li>
+          <li class="plan-feature"><span class="check">✓</span> Múltiplos usuários</li>
+          <li class="plan-feature"><span class="check">✓</span> Relatórios institucionais</li>
+          <li class="plan-feature"><span class="check">✓</span> Integração com prontuário</li>
+          <li class="plan-feature"><span class="check">✓</span> SLA garantido</li>
+          <li class="plan-feature"><span class="check">✓</span> Treinamento presencial</li>
+        </ul>
+        <a href="mailto:contato@inurseapp.com.br" class="btn btn-outline">Falar com especialista</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     8. FAQ
+══════════════════════════════════════════════════════ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-inner">
+      <div class="faq-header fade-up">
+        <span class="section-label">Dúvidas frequentes</span>
+        <h2 class="section-title">Perguntas <span class="gradient-text">frequentes</span></h2>
+      </div>
+
+      <div class="faq-item fade-up delay-1">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Meus dados de pacientes ficam seguros?
+          <div class="faq-icon">+</div>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim. O iNurseapp usa de-identificação automática antes de qualquer processamento externo. Os dados do paciente nunca saem do seu dispositivo sem criptografia end-to-end. Seguimos rigorosamente a LGPD, com auditoria imutável de cada ação realizada.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up delay-2">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Funciona sem internet?
+          <div class="faq-icon">+</div>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            A transcrição e geração de notas requerem conexão com a internet. Os dados ficam armazenados localmente e sincronizam quando a conexão for reestabelecida. O histórico de notas fica sempre disponível offline.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up delay-3">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          A documentação tem validade jurídica?
+          <div class="faq-icon">+</div>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim. O enfermeiro revisa e assina cada nota gerada, mantendo a responsabilidade técnica. O iNurseapp gera um registro de auditoria imutável de cada ação, com hash criptográfico e timestamp, atendendo às exigências do COFEN e do CFM.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up delay-4">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Preciso de treinamento para usar?
+          <div class="faq-icon">+</div>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Não. A interface foi projetada para ser intuitiva desde o primeiro uso. Em menos de 5 minutos você já consegue gerar sua primeira nota completa. Disponibilizamos vídeos curtos e base de conhecimento para quem quiser ir além.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item fade-up delay-5">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Funciona com qualquer especialidade?
+          <div class="faq-icon">+</div>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim. Temos 20 workflows especializados incluindo UBS, UTI, Pronto Socorro, Centro Cirúrgico, Recuperação Anestésica, Home Care e Saúde Mental (CAPS, Internação, Ambulatório). Cada contexto tem campos, alertas e vocabulário técnico específico.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     9. CTA FINAL
+══════════════════════════════════════════════════════ -->
+<section class="cta-final" id="cta-final">
+  <div class="container">
+    <div class="fade-up">
+      <h2>Comece hoje.<br>Sua primeira nota em minutos.</h2>
+      <p class="sub">14 dias grátis, sem cartão de crédito.</p>
+      <a href="#" class="btn btn-primary btn-lg">🚀 Criar conta grátis</a>
+      <p class="small-note">Cancele a qualquer momento. Sem taxas ocultas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     10. FOOTER
+══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">iNurseapp</div>
+        <p>Documentação clínica com IA para enfermeiros brasileiros.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
+          <a href="#" class="social-link" aria-label="Instagram">📸</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Produto</h4>
+        <ul>
+          <li><a href="#funcionalidades">Funcionalidades</a></li>
+          <li><a href="#precos">Preços</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#">Carreiras</a></li>
+          <li><a href="#">Contato</a></li>
+          <li><a href="#">Imprensa</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Política LGPD</a></li>
+          <li><a href="#">Termos de Uso</a></li>
+          <li><a href="#">Privacidade</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 iNurseapp. Todos os direitos reservados.</p>
+      <p>CNPJ: XX.XXX.XXX/0001-XX · São Paulo, Brasil</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Navbar scroll ──────────────────────────────────────
+  const navbar = document.getElementById('navbar');
+  const hero   = document.getElementById('hero');
+
+  const handleScroll = () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  };
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  // ── Hamburger menu ────────────────────────────────────
+  const hamburger  = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  hamburger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', String(open));
+  });
+
+  // Fechar menu ao clicar em link
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+    });
+  });
+
+  // ── Intersection Observer (fade-up) ───────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Hero entra imediatamente
+  setTimeout(() => {
+    document.querySelectorAll('.hero .fade-up').forEach(el => el.classList.add('visible'));
+  }, 120);
+
+  // ── FAQ accordion ─────────────────────────────────────
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+
+    // Fechar todos
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+    // Abrir o clicado se estava fechado
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── Smooth scroll para âncoras ────────────────────────
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      const offset = navbar.offsetHeight + 16;
+      window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
