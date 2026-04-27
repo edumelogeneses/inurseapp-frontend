@@ -5,12 +5,6 @@
   publish = "."
   command = "echo 'Static site ready'"
 
-[[redirects]]
-  from = "/api/*"
-  to = "https://lively-embrace-production-a4a2.up.railway.app/api/:splat"
-  status = 200
-  force = true
-
 # Redirect www to non-www (ou vice-versa)
 [[redirects]]
   from = "http://www.inurseapp.com/*"
