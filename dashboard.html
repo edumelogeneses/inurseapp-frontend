@@ -1,247 +1,333 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - iNurseApp</title>
-    <meta name="robots" content="noindex, nofollow">
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2563EB">
-    
-    <!-- iOS Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="iNurseApp">
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5F3XF8G5KN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5F3XF8G5KN');
-    </script>
-    
-    <link rel="stylesheet" href="css/style.css">
-    
-    <style>
-        .dashboard {
-            min-height: 100vh;
-            background: var(--gray-50);
-        }
-        
-        .dashboard-header {
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .dashboard-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        .dashboard-main {
-            padding: 2rem 0;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border-left: 4px solid;
-        }
-        
-        .stat-card.primary { border-color: var(--primary); }
-        .stat-card.success { border-color: var(--success); }
-        .stat-card.warning { border-color: var(--warning); }
-        
-        .stat-card-title {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-card-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            margin: 2rem 0;
-        }
-        
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .empty-state h3 {
-            margin-bottom: 1rem;
-            color: var(--gray-700);
-        }
-        
-        .empty-state p {
-            color: var(--gray-600);
-            margin-bottom: 2rem;
-        }
-    </style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
-<body class="dashboard">
-    <a href="#main-content" class="sr-only">Pular para conteúdo principal</a>
-    
-    <header class="dashboard-header" role="banner">
-        <div class="container">
-            <nav class="dashboard-nav" aria-label="Navegação do dashboard">
-                <div class="logo">
-                    <h1 style="font-size: 1.25rem; color: var(--primary); margin: 0;">
-                        🩺 iNurseApp
-                    </h1>
-                </div>
-                <div class="user-menu">
-                    <span id="user-name" class="text-muted"></span>
-                    <div class="user-avatar" id="user-avatar" aria-label="Menu do usuário"></div>
-                    <button 
-                        class="btn btn-secondary" 
-                        onclick="logout()"
-                        aria-label="Sair da conta"
-                    >
-                        Sair
-                    </button>
-                </div>
-            </nav>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-container">
+            <div class="logo">
+                <h1>🏥 iNurseApp</h1>
+            </div>
+            <div class="user-info">
+                <span id="user-name">Carregando...</span>
+                <button id="logout-btn" class="btn-secondary">Sair</button>
+            </div>
         </div>
     </header>
 
-    <main id="main-content" class="dashboard-main">
-        <div class="container">
-            <!-- Welcome Section -->
-            <section aria-labelledby="welcome-title">
-                <h2 id="welcome-title" style="margin-bottom: 0.5rem;">
-                    Bem-vindo de volta!
-                </h2>
-                <p class="text-muted" style="margin-bottom: 2rem;">
-                    Aqui está um resumo da sua conta
-                </p>
-            </section>
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-container">
+            
+            <!-- Tabs de Navegação -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="nova-nota">Nova Nota SOAP</button>
+                <button class="tab-btn" data-tab="historico">Histórico</button>
+            </div>
 
-            <!-- Stats Grid -->
-            <div class="dashboard-grid" role="region" aria-label="Estatísticas da conta">
-                <div class="stat-card primary">
-                    <div class="stat-card-title">Plano Atual</div>
-                    <div class="stat-card-value" id="stat-plan">---</div>
-                </div>
+            <!-- Tab: Nova Nota SOAP -->
+            <div id="tab-nova-nota" class="tab-content active">
                 
-                <div class="stat-card success">
-                    <div class="stat-card-title">Tokens Disponíveis</div>
-                    <div class="stat-card-value" id="stat-tokens">---</div>
+                <!-- Step 1: Seleção de Contexto -->
+                <div id="step-context" class="step active">
+                    <div class="card">
+                        <h2>1. Contexto Clínico</h2>
+                        <p class="subtitle">Selecione o ambiente e especialidade para otimizar a documentação</p>
+                        
+                        <div class="form-group">
+                            <label for="environment">Ambiente</label>
+                            <select id="environment" class="form-control" required>
+                                <option value="">Carregando...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="specialty">Especialidade</label>
+                            <select id="specialty" class="form-control" disabled required>
+                                <option value="">Selecione primeiro o ambiente</option>
+                            </select>
+                        </div>
+
+                        <button id="btn-start-recording" class="btn-primary" disabled>
+                            Continuar para Gravação
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="stat-card warning">
-                    <div class="stat-card-title">Tokens Usados</div>
-                    <div class="stat-card-value" id="stat-used">---</div>
+
+                <!-- Step 2: Gravação de Áudio -->
+                <div id="step-recording" class="step">
+                    <div class="card">
+                        <h2>2. Gravação da Consulta</h2>
+                        <p class="subtitle">Grave o atendimento para transcrição e geração automática da nota SOAP</p>
+                        
+                        <!-- Audio Recorder -->
+                        <div class="audio-recorder">
+                            <div class="recorder-visual">
+                                <canvas id="audioVisualizer" width="600" height="100"></canvas>
+                            </div>
+                            
+                            <div class="recorder-controls">
+                                <button id="btn-record" class="btn-record">
+                                    <span class="icon">🎤</span>
+                                    <span class="text">Iniciar Gravação</span>
+                                </button>
+                                <button id="btn-pause" class="btn-pause" disabled>
+                                    <span class="icon">⏸️</span>
+                                    <span class="text">Pausar</span>
+                                </button>
+                                <button id="btn-stop" class="btn-stop" disabled>
+                                    <span class="icon">⏹️</span>
+                                    <span class="text">Finalizar</span>
+                                </button>
+                            </div>
+
+                            <div class="recorder-info">
+                                <div class="timer">
+                                    <span class="icon">⏱️</span>
+                                    <span id="recording-time">00:00</span>
+                                </div>
+                                <div class="status">
+                                    <span id="recording-status" class="status-idle">Aguardando</span>
+                                </div>
+                            </div>
+
+                            <!-- Audio Preview -->
+                            <div id="audio-preview" class="audio-preview" style="display: none;">
+                                <h3>Pré-visualização</h3>
+                                <audio id="audio-player" controls></audio>
+                                <div class="preview-actions">
+                                    <button id="btn-rerecord" class="btn-secondary">Regravar</button>
+                                    <button id="btn-upload" class="btn-primary">Enviar para Transcrição</button>
+                                </div>
+                            </div>
+
+                            <!-- Botão de emergência (caso o preview não apareça) -->
+                            <div style="margin-top: 20px; text-align: center;">
+                                <button id="btn-skip-to-patient" class="btn-secondary" style="display: none;">
+                                    ⚠️ Pular para Dados do Paciente (Emergência)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Informações do Paciente -->
+                <div id="step-patient" class="step">
+                    <div class="card">
+                        <h2>3. Informações do Paciente</h2>
+                        <p class="subtitle">Dados básicos para personalizar a nota SOAP</p>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="patient-name">Nome do Paciente</label>
+                                <input type="text" id="patient-name" class="form-control" placeholder="Ex: João da Silva">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="patient-age">Idade</label>
+                                <input type="number" id="patient-age" class="form-control" placeholder="Ex: 45" min="0" max="150">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="patient-gender">Sexo</label>
+                                <select id="patient-gender" class="form-control">
+                                    <option value="">Não informado</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="chief-complaint">Queixa Principal (opcional)</label>
+                                <input type="text" id="chief-complaint" class="form-control" placeholder="Ex: Dor torácica há 2 horas">
+                            </div>
+                        </div>
+
+                        <div class="processing-status" id="processing-status" style="display: none;">
+                            <div class="spinner"></div>
+                            <div class="status-messages">
+                                <p id="status-transcribing" class="status-msg">⏳ Transcrevendo áudio...</p>
+                                <p id="status-generating" class="status-msg" style="display: none;">🤖 Gerando nota SOAP com Claude...</p>
+                            </div>
+                        </div>
+
+                        <button id="btn-generate-soap" class="btn-primary" disabled>Gerar Nota SOAP</button>
+                        <p id="soap-hint" style="margin-top: 10px; color: #666; font-size: 0.9em; text-align: center;">
+                            ⚠️ Você precisa gravar e enviar um áudio primeiro
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4: Nota SOAP Gerada -->
+                <div id="step-soap" class="step">
+                    <div class="soap-result">
+                        
+                        <!-- SOAP Sections -->
+                        <div class="card">
+                            <h2>Nota SOAP</h2>
+                            
+                            <div class="soap-section">
+                                <h3>S - Subjetivo</h3>
+                                <textarea id="soap-subjective" class="soap-textarea" rows="4"></textarea>
+                            </div>
+
+                            <div class="soap-section">
+                                <h3>O - Objetivo</h3>
+                                <textarea id="soap-objective" class="soap-textarea" rows="4"></textarea>
+                            </div>
+
+                            <div class="soap-section">
+                                <h3>A - Avaliação</h3>
+                                <textarea id="soap-assessment" class="soap-textarea" rows="4"></textarea>
+                            </div>
+
+                            <div class="soap-section">
+                                <h3>P - Plano</h3>
+                                <textarea id="soap-plan" class="soap-textarea" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Sistemas Não Abordados -->
+                        <div class="card">
+                            <h2>⚠️ Sistemas Não Abordados</h2>
+                            <p class="subtitle">Sistemas que não foram avaliados nesta consulta</p>
+                            <div id="sistemas-nao-abordados" class="sistemas-list">
+                                <!-- Preenchido dinamicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Diagnósticos NANDA -->
+                        <div class="card">
+                            <h2>📋 Diagnósticos de Enfermagem (NANDA-I)</h2>
+                            <div id="diagnosticos-nanda" class="diagnosticos-list">
+                                <!-- Preenchido dinamicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Ações de Exportação -->
+                        <div class="card export-actions">
+                            <h2>💾 Exportar Nota</h2>
+                            <div class="export-buttons">
+                                <button id="btn-copy-clipboard" class="btn-export">
+                                    📋 Copiar para e-SUS
+                                </button>
+                                <button id="btn-download-txt" class="btn-export">
+                                    📄 Download TXT
+                                </button>
+                                <button id="btn-download-pdf" class="btn-export">
+                                    📑 Download PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Ações Finais -->
+                        <div class="card" style="text-align: center; margin-top: 20px;">
+                            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                                <button id="btn-finalize-note" class="btn-primary" style="font-size: 1.1em; padding: 15px 30px;" disabled>
+                                    ✅ Finalizar e Ver Histórico
+                                </button>
+                                <button id="btn-new-note" class="btn-secondary" style="font-size: 1.1em; padding: 15px 30px;">
+                                    📝 Nova Nota
+                                </button>
+                            </div>
+                            <p id="finalize-hint" style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                                Suas edições serão salvas ao finalizar
+                            </p>
+                        </div>
+
+                        <!-- Botão Nova Nota -->
+                        <div class="card">
+                            <button id="btn-new-note" class="btn-primary full-width">
+                                ➕ Criar Nova Nota
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Empty State -->
-            <div class="empty-state">
-                <div class="empty-state-icon" aria-hidden="true">🎤</div>
-                <h3>Comece agora!</h3>
-                <p>Você ainda não criou nenhum prontuário. Grave sua primeira consulta para começar.</p>
-                <button class="btn btn-primary btn-large" disabled>
-                    🎙️ Gravar Consulta
-                </button>
-                <p class="text-muted" style="margin-top: 1rem; font-size: 0.875rem;">
-                    (Funcionalidade em desenvolvimento)
-                </p>
+            <!-- Tab: Histórico -->
+            <div id="tab-historico" class="tab-content">
+                <div class="card">
+                    <h2>📚 Histórico de Notas</h2>
+                    <div id="notes-history" class="notes-history">
+                        <p class="loading">Carregando histórico...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Modal de Gravação de Complemento -->
+    <div id="complement-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎤 Gravar Complemento</h2>
+                <button class="modal-close" onclick="closeComplementModal()">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="complement-info">
+                    <p><strong>Sistema:</strong> <span id="complement-system-name"></span></p>
+                    <p class="hint">Grave um áudio falando APENAS sobre este sistema.</p>
+                    <p class="hint economy-badge">💰 Economia de ~75% de tokens!</p>
+                </div>
+                
+                <div class="recording-controls">
+                    <canvas id="complement-visualizer" width="400" height="100"></canvas>
+                    
+                    <div class="button-group">
+                        <button id="btn-complement-record" class="btn-primary">
+                            🎤 Gravar
+                        </button>
+                        <button id="btn-complement-stop" class="btn-danger" style="display: none;">
+                            ⏹️ Parar
+                        </button>
+                    </div>
+                    
+                    <div id="complement-duration" class="duration-display" style="display: none;">
+                        ⏱️ <span id="complement-timer">00:00</span>
+                    </div>
+                </div>
+                
+                <div id="complement-preview" style="display: none;">
+                    <h3>Pré-visualização</h3>
+                    <audio id="complement-audio-player" controls></audio>
+                    
+                    <div class="button-group">
+                        <button id="btn-complement-rerecord" class="btn-secondary">
+                            🔄 Regravar
+                        </button>
+                        <button id="btn-complement-send" class="btn-primary">
+                            📤 Enviar Complemento
+                        </button>
+                    </div>
+                    
+                    <div class="processing-status" id="complement-processing" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>⏳ Processando complemento...</p>
+                        <p class="economy-info">Economia estimada: <strong>~2500 tokens</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Configuração de Ambiente (DEVE vir primeiro) -->
+    <script src="js/config.js?v=20260430"></script>
     <script src="js/api.js?v=20260430"></script>
     <script src="js/auth.js?v=20260430"></script>
-    <script src="js/analytics.js?v=20260430"></script>
-    <script>
-        // Protect page
-        protectPage();
-        
-        // Load user data
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = API.getUser();
-            
-            if (user) {
-                // Set user name
-                document.getElementById('user-name').textContent = user.full_name;
-                
-                // Set avatar initial
-                const initials = user.full_name.split(' ')
-                    .map(n => n[0])
-                    .slice(0, 2)
-                    .join('')
-                    .toUpperCase();
-                document.getElementById('user-avatar').textContent = initials;
-                
-                // Set stats
-                document.getElementById('stat-plan').textContent = user.plan;
-                document.getElementById('stat-tokens').textContent = formatTokens(user.tokens_total - user.tokens_used);
-                document.getElementById('stat-used').textContent = formatTokens(user.tokens_used);
-            }
-            
-            // Fetch fresh data from API
-            const result = await getCurrentUser();
-            if (result.success) {
-                const freshUser = result.user;
-                
-                document.getElementById('user-name').textContent = freshUser.full_name;
-                document.getElementById('stat-plan').textContent = freshUser.plan;
-                document.getElementById('stat-tokens').textContent = formatTokens(freshUser.tokens_total - freshUser.tokens_used);
-                document.getElementById('stat-used').textContent = formatTokens(freshUser.tokens_used);
-            }
-        });
-    </script>
+    <script src="js/audio-recorder.js?v=20260430"></script>
+    <script src="js/soap-generator.js?v=20260430"></script>
+    <script src="js/dashboard.js?v=20260430"></script>
 </body>
 </html>
