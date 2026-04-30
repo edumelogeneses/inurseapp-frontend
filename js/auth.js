@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // Authentication Functions - iNurseApp
 // ========================================
 
@@ -72,7 +72,7 @@ async function register(userData) {
 // Get current user profile
 async function getCurrentUser() {
     try {
-        const response = await API.get('/users/me');
+        const response = await API.get('/auth/me');
         
         if (!response.ok) {
             throw new Error('Erro ao buscar perfil');
@@ -92,7 +92,7 @@ async function getCurrentUser() {
 // Update user profile
 async function updateProfile(userData) {
     try {
-        const response = await API.put('/users/me', userData);
+        const response = await API.put('/auth/me', userData);
         
         if (!response.ok) {
             throw new Error('Erro ao atualizar perfil');
